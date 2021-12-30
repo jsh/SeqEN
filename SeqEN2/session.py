@@ -10,6 +10,15 @@ from SeqEN2.model.model import Model
 from os import system
 from glob import glob
 from SeqEN2.utils.custom_arg_parser import TrainSessionArgParser
+from torch import cuda
+
+
+def get_map_location():
+    if cuda.is_available():
+        map_location = lambda storage, loc: storage.cuda()
+    else:
+        map_location = 'cpu'
+    return map_location
 
 
 class Session:
@@ -28,13 +37,16 @@ class Session:
 
 def main(args):
     data_files = sorted(glob(str(Model.root) + f"/data/{args['Dataset']}/*.csv.gz"))
-    train_data = data_files[:1]
-    test_data = data_files[1:2]
+    train_data = data_files[2:]
+    test_data = data_files[:2]
     # session
     session = Session(
         args['Model Name'], train_data, test_data,
         d0=args['D0'], d1=args['D1'], dn=args['Dn'], w=args['W'], lr=args['Learning Rate']
     )
+    if args['Model ID'] != '':
+        session.model.load_model(args['Model ID'], map_location=get_map_location())
+
     session.train(
         args['Run Title'], epochs=args['Epochs'], batch_size=args['Train Batch'],
         num_test_items=args['Test Batch'], test_interval=args['Test Interval']

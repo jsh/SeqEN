@@ -45,17 +45,25 @@ def load(filename):
 
 class DataLoader:
 
-    def __init__(self, train_data, test_data):
-        self.train = load(train_data)
-        self.test = load(test_data)
-        self.test_items = np.unique(['_'.join(item.split('_')[:-1]) for item in self.test.index])
+    def __init__(self, train_data_files, test_data_files):
+        self.train_data_files = train_data_files
+        self.test_data_files = test_data_files
+        self.train_data = None
+        self.test_data = None
+
+    def prepare_test_data(self):
+        if self.test_data is None:
+            self.test_data = load(self.test_data_files)
+            self.test_items = np.unique(['_'.join(item.split('_')[:-1]) for item in self.test_data.index])
 
     def get_train_batch(self, batch_size=128):
-        self.train = self.train.sample(frac=1).reset_index(drop=True)
-        num_batch = len(self.train) // batch_size
-        for i in range(num_batch+1):
-            yield self.train.iloc[i*batch_size:(i+1)*batch_size].values
+        for train_data_file in self.train_data_files:
+            self.train_data = load(train_data_file).sample(frac=1).reset_index(drop=True)
+            num_batch = len(self.train_data) // batch_size
+            for i in range(num_batch+1):
+                yield self.train_data.iloc[i*batch_size:(i+1)*batch_size].values
 
     def get_test_batch(self, num_test_items=10):
+        self.prepare_test_data()
         for item in np.random.choice(self.test_items, size=num_test_items):
-            yield self.test[self.test.index.str.contains(item)].values
+            yield self.test_data[self.test_data.index.str.contains(item)].values
