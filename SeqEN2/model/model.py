@@ -270,7 +270,7 @@ class Model:
             start_epoch = 0
         else:
             saved_models = [
-                int(fp.split('/')[-1].split('.')[0].split('_')[-1]) for fp in glob(str(train_dir) + f'epoch_*.model')
+                int(fp.split('/')[-1].split('.')[0].split('_')[-1]) for fp in glob(str(train_dir) + f'/epoch_*.model')
             ]
             start_epoch = max(saved_models)
         iter_for_test = 0
