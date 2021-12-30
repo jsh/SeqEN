@@ -28,8 +28,8 @@ class Session:
 
 def main(args):
     data_files = sorted(glob(str(Model.root) + f"/data/{args['Dataset']}/*.csv.gz"))
-    train_data = data_files[2:]
-    test_data = data_files[:2]
+    train_data = data_files[:1]
+    test_data = data_files[1:2]
     # session
     session = Session(
         args['Model Name'], train_data, test_data,

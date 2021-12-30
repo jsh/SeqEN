@@ -28,6 +28,8 @@ class CustomLRScheduler(optim.lr_scheduler.ReduceLROnPlateau):
         self._last_lr = None
 
     def get_last_lr(self):
+        if self._last_lr is None:
+            return [0.01]
         return self._last_lr
 
 
