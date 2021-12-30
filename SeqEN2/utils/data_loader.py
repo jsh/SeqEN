@@ -49,3 +49,4 @@ class DataLoader:
         num_batch = len(self.train) // batch_size
         for i in range(num_batch+1):
             yield self.train.iloc[i*batch_size:(i+1)*batch_size].values
+

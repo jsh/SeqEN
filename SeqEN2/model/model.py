@@ -184,7 +184,7 @@ class Model():
             {'params': self.autoencoder.devectorizer.parameters()}
         ], lr=self.lr)
         self.reconstructor_lr_scheduler = CustomLRScheduler(
-            self.reconstructor_optimizer, factor=0.99, patience=1000, cooldown=100, min_lr=0.000001)
+            self.reconstructor_optimizer, factor=0.99, patience=10000, cooldown=100, min_lr=0.000001)
         ###
         self.generator_optimizer = optim.SGD([
             {'params': self.autoencoder.vectorizer.parameters()},
@@ -192,13 +192,13 @@ class Model():
             {'params': self.autoencoder.discriminator.parameters()}
         ], lr=self.lr)
         self.generator_lr_scheduler = CustomLRScheduler(
-            self.generator_optimizer, factor=0.99, patience=1000, cooldown=100, min_lr=0.000001)
+            self.generator_optimizer, factor=0.99, patience=10000, cooldown=100, min_lr=0.000001)
         ###
         self.discriminator_optimizer = optim.SGD([
             {'params': self.autoencoder.discriminator.parameters()}
         ], lr=self.lr)
         self.discriminator_lr_scheduler = CustomLRScheduler(
-            self.discriminator_optimizer, factor=0.99, patience=1000, cooldown=100, min_lr=0.000001)
+            self.discriminator_optimizer, factor=0.99, patience=10000, cooldown=100, min_lr=0.000001)
         ###
         self.classifier_optimizer = optim.SGD([
             {'params': self.autoencoder.vectorizer.parameters()},
@@ -206,7 +206,7 @@ class Model():
             {'params': self.autoencoder.classifier.parameters()}
         ], lr=self.lr)
         self.classifier_lr_scheduler = CustomLRScheduler(
-            self.classifier_optimizer, factor=0.99, patience=1000, cooldown=100, min_lr=0.000001)
+            self.classifier_optimizer, factor=0.99, patience=10000, cooldown=100, min_lr=0.000001)
 
 
     def train(self, epochs=10, batch_size=128, run_title=''):
