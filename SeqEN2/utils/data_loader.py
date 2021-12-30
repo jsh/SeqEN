@@ -8,6 +8,7 @@ __version__ = "0.0.1"
 # imports
 import json
 import pandas as pd
+import numpy as np
 
 
 # data tools
@@ -33,16 +34,21 @@ def write_json(data_dict, filename):
         json.dump(data_dict, file)
 
 
+def load(filename):
+    data = None
+    if isinstance(filename, list):
+        data = pd.concat([pd.read_csv(fp, index_col=0) for fp in filename])
+    elif filename.endswith('csv.gz') or filename.endswith('.csv'):
+        data = pd.read_csv(filename, index_col=0)
+    return data
+
+
 class DataLoader:
 
     def __init__(self, train_data, test_data):
-        self.train = self.load(train_data)
-        self.test = self.load(test_data)
-
-    def load(self, filename):
-        if filename.endswith('csv.gz') or filename.endswith('.csv'):
-            data = pd.read_csv(filename, index_col=0)
-            return data
+        self.train = load(train_data)
+        self.test = load(test_data)
+        self.test_items = np.unique(['_'.join(item.split('_')[:-1]) for item in self.test.index])
 
     def get_train_batch(self, batch_size=128):
         self.train = self.train.sample(frac=1).reset_index(drop=True)
@@ -50,3 +56,6 @@ class DataLoader:
         for i in range(num_batch+1):
             yield self.train.iloc[i*batch_size:(i+1)*batch_size].values
 
+    def get_test_batch(self, num_test_items=10):
+        for item in np.random.choice(self.test_items, size=num_test_items):
+            yield self.test[self.test.index.str.contains(item)].values
