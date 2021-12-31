@@ -53,4 +53,4 @@ class TrainSessionArgParser(SessionParser):
         self.parser.add_argument('-teb', '--test_batch', type=int, help='Test Batch', default=1)
         self.parser.add_argument('-ti', '--test_interval', type=int, help='Test Interval', default=100)
 
-        self.parser.add_argument('-mid', '--model_id', type=str, help='Model ID', default='')
+        self.parser.add_argument('-mid', '--model_id', type=str, help='', default='')

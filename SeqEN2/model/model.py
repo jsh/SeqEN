@@ -123,12 +123,12 @@ class AdversarialAutoencoder(Module):
         torch_save(self.discriminator, model_dir / f'discriminator_{epoch}.m')
 
     def load(self, model_dir, version, map_location):
-        self.vectorizer = torch_load(model_dir / f'vectorizer_{version}.m', map_location=map_location)
-        self.encoder = torch_load(model_dir / f'encoder_{version}.m', map_location=map_location)
-        self.decoder = torch_load(model_dir / f'decoder_{version}.m', map_location=map_location)
-        self.devectorizer = torch_load(model_dir / f'devectorizer_{version}.m', map_location=map_location)
-        self.classifier = torch_load(model_dir / f'classifier_{version}.m', map_location=map_location)
-        self.discriminator = torch_load(model_dir / f'discriminator_{version}.m', map_location=map_location)
+        self.vectorizer = torch_load(model_dir / f'vectorizer_{version}.m', map_location=map_location).__copy__()
+        self.encoder = torch_load(model_dir / f'encoder_{version}.m', map_location=map_location).__copy__()
+        self.decoder = torch_load(model_dir / f'decoder_{version}.m', map_location=map_location).__copy__()
+        self.devectorizer = torch_load(model_dir / f'devectorizer_{version}.m', map_location=map_location).__copy__()
+        self.classifier = torch_load(model_dir / f'classifier_{version}.m', map_location=map_location).__copy__()
+        self.discriminator = torch_load(model_dir / f'discriminator_{version}.m', map_location=map_location).__copy__()
 
 
 class Model:
@@ -290,5 +290,11 @@ class Model:
 
     def load_model(self, model_id, map_location):
         version, model_name, run_title = model_id.split(',')          # 0,test,run_title
-        model_dir = self.root / 'models' / model_name / run_title
-        self.autoencoder.load(model_dir, version, map_location=map_location)
+        try:
+            model_dir = self.root / 'models' / model_name / 'versions' / run_title
+            self.autoencoder.load(model_dir, version, map_location=map_location)
+            print('first method is working')
+        except FileNotFoundError:
+            model_dir = Path('/mnt/home/nayebiga/SeqEncoder/SeqEN/models') / model_name / 'versions' / run_title
+            self.autoencoder.load(model_dir, version, map_location=map_location)
+            print('second method is working')
