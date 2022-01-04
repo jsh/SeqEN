@@ -17,14 +17,15 @@ from torch import optim
 
 
 class Architecture(object):
-
     def __init__(self, architecture):
         if isinstance(architecture, dict):
             self.architecture = architecture
         else:
-            raise TypeError(f'Architecture must be of type dict. {type(architecture)} is received.')
-        self.name = self.architecture['name']
-        self.type = self.architecture['type']
+            raise TypeError(
+                f"Architecture must be of type dict. {type(architecture)} is received."
+            )
+        self.name = self.architecture["name"]
+        self.type = self.architecture["type"]
         self.vectorizer = None
         self.devectorizer = None
         self.encoder = None
@@ -35,22 +36,21 @@ class Architecture(object):
 
     def parse_architecture(self):
         for key, item in self.architecture.items():
-            if key == 'vectorizer':
+            if key == "vectorizer":
                 self.vectorizer = item
-            elif key == 'devectorizer':
+            elif key == "devectorizer":
                 self.devectorizer = item
-            elif key == 'encoder':
+            elif key == "encoder":
                 self.encoder = item
-            elif key == 'decoder':
+            elif key == "decoder":
                 self.decoder = item
-            elif key == 'discriminator':
+            elif key == "discriminator":
                 self.discriminator = item
-            elif key == 'classifier':
+            elif key == "classifier":
                 self.classifier = item
 
 
 class LayerMaker(object):
-
     def make(self, arch):
         layers = []
         for layer in arch:
@@ -58,32 +58,31 @@ class LayerMaker(object):
         return Sequential(*layers)
 
     def make_layer(self, layer):
-        if layer['type'] == 'Linear':
-            return Linear(layer['in'], layer['out'])
-        elif layer['type'] == 'Tanh':
+        if layer["type"] == "Linear":
+            return Linear(layer["in"], layer["out"])
+        elif layer["type"] == "Tanh":
             return Tanh()
-        elif layer['type'] == 'Sigmoid':
+        elif layer["type"] == "Sigmoid":
             return Sigmoid()
-        elif layer['type'] == 'ReLU':
+        elif layer["type"] == "ReLU":
             return ReLU()
-        elif layer['type'] == 'Conv1d':
-            return Conv1d(layer['in'], layer['out'], layer['kernel'])
-        elif layer['type'] == 'LogSoftmax':
+        elif layer["type"] == "Conv1d":
+            return Conv1d(layer["in"], layer["out"], layer["kernel"])
+        elif layer["type"] == "LogSoftmax":
             return LogSoftmax(dim=1)
-        elif layer['type'] == 'Softmax':
+        elif layer["type"] == "Softmax":
             return Softmax(dim=1)
-        elif layer['type'] == 'MaxPool1d':
-            return MaxPool1d(layer['kernel'])
-        elif layer['type'] == 'Flatten':
+        elif layer["type"] == "MaxPool1d":
+            return MaxPool1d(layer["kernel"])
+        elif layer["type"] == "Flatten":
             return Flatten()
-        elif layer['type'] == 'Unflatten':
-            return Unflatten(1, (layer['in'], layer['out']))
-        elif layer['type'] == 'ConvTranspose1d':
-            return ConvTranspose1d(layer['in'], layer['out'], layer['kernel'])
+        elif layer["type"] == "Unflatten":
+            return Unflatten(1, (layer["in"], layer["out"]))
+        elif layer["type"] == "ConvTranspose1d":
+            return ConvTranspose1d(layer["in"], layer["out"], layer["kernel"])
 
 
 class CustomLRScheduler(optim.lr_scheduler.ReduceLROnPlateau):
-
     def __init__(self, *args, **kwargs):
         super(CustomLRScheduler, self).__init__(*args, **kwargs)
         self._last_lr = None
