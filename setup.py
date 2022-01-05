@@ -10,6 +10,6 @@ __version__ = "0.2.0"
 
 
 # imports
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(name="SeqEN2", version=__version__, packages=find_packages())
