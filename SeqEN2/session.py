@@ -30,7 +30,7 @@ class Session:
 
     def __init__(self):
         # setup dirs
-        self.models_dir = self.root / 'model'
+        self.models_dir = self.root / 'models'
         if not self.models_dir.exists():
             self.models_dir.mkdir()
         self.data_dir = self.root / 'data'
@@ -49,7 +49,8 @@ class Session:
         if self.model is None:
             self.model = Model(name, arch, d0=d0, d1=d1, dn=dn, w=w)
 
-    def load_data(self, dataset_name, data_files):
+    def load_data(self, dataset_name):
+        data_files = sorted(glob(str(Model.root) + f"/data/{dataset_name}/*.csv.gz"))
         self.model.load_data(dataset_name, data_files)
 
     def load_arch(self, arch):
@@ -87,8 +88,7 @@ def main(args):
         w=args["W"]
     )
     # load datafiles
-    data_files = sorted(glob(str(Model.root) + f"/data/{args['Dataset']}/*.csv.gz"))
-    session.load_data(args['Dataset'], data_files)
+    session.load_data(args['Dataset'])
     # if args['Model ID'] != '':
     #     session.model.load_model(args['Model ID'], map_location=get_map_location())
     if args["Train Params"] is None:
