@@ -36,17 +36,25 @@ class Session:
         self.data_dir = self.root / 'data'
         if not self.data_dir.exists():
             self.data_dir.mkdir()
+        self.arch_dir = self.root / 'arch'
+        if not self.arch_dir.exists():
+            self.arch_dir.mkdir()
 
         # model placeholder
         self.model = None
 
 
     def add_model(self, name, arch, d0=21, d1=8, dn=10, w=20):
+        arch = self.load_arch(arch)
         if self.model is None:
             self.model = Model(name, arch, d0=d0, d1=d1, dn=dn, w=w)
 
-    def load_data(self, train_data, test_data):
-        self.model.load_data(train_data, test_data)
+    def load_data(self, dataset_name, data_files):
+        self.model.load_data(dataset_name, data_files)
+
+    def load_arch(self, arch):
+        arch_path = self.root / 'arch' / f'{arch}.json'
+        return read_json(arch_path)
 
     def train(
         self,
@@ -68,10 +76,6 @@ class Session:
 
 
 def main(args):
-    # load datafiles
-    data_files = sorted(glob(str(Model.root) + f"/data/{args['Dataset']}/*.csv.gz"))
-    train_data = data_files[2:]
-    test_data = data_files[:2]
     # session
     session = Session()
     session.add_model(
@@ -82,7 +86,9 @@ def main(args):
         dn=args["Dn"],
         w=args["W"]
     )
-    session.load_data(train_data, test_data)
+    # load datafiles
+    data_files = sorted(glob(str(Model.root) + f"/data/{args['Dataset']}/*.csv.gz"))
+    session.load_data(args['Dataset'], data_files)
     # if args['Model ID'] != '':
     #     session.model.load_model(args['Model ID'], map_location=get_map_location())
     if args["Train Params"] is None:
