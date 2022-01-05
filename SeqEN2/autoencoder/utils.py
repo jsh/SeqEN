@@ -6,7 +6,6 @@ __version__ = "0.0.1"
 
 
 from torch import optim
-
 from torch.nn import (
     Conv1d,
     ConvTranspose1d,
