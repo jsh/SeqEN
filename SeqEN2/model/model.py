@@ -50,7 +50,7 @@ class Model:
             self.dataset_name = dataset_name
         # load datafiles
         num_files = len(datasets)
-        test_data_files = max(1, num_files//10)
+        test_data_files = max(1, num_files // 10)
         train_data = datasets[test_data_files:]
         test_data = datasets[:test_data_files]
         if self.test_data is None:

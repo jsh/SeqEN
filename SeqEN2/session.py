@@ -30,19 +30,18 @@ class Session:
 
     def __init__(self):
         # setup dirs
-        self.models_dir = self.root / 'models'
+        self.models_dir = self.root / "models"
         if not self.models_dir.exists():
             self.models_dir.mkdir()
-        self.data_dir = self.root / 'data'
+        self.data_dir = self.root / "data"
         if not self.data_dir.exists():
             self.data_dir.mkdir()
-        self.arch_dir = self.root / 'arch'
+        self.arch_dir = self.root / "arch"
         if not self.arch_dir.exists():
             self.arch_dir.mkdir()
 
         # model placeholder
         self.model = None
-
 
     def add_model(self, name, arch, d0=21, d1=8, dn=10, w=20):
         arch = self.load_arch(arch)
@@ -54,7 +53,7 @@ class Session:
         self.model.load_data(dataset_name, data_files)
 
     def load_arch(self, arch):
-        arch_path = self.root / 'arch' / f'{arch}.json'
+        arch_path = self.root / "arch" / f"{arch}.json"
         return read_json(arch_path)
 
     def train(
@@ -85,10 +84,10 @@ def main(args):
         d0=args["D0"],
         d1=args["D1"],
         dn=args["Dn"],
-        w=args["W"]
+        w=args["W"],
     )
     # load datafiles
-    session.load_data(args['Dataset'])
+    session.load_data(args["Dataset"])
     # if args['Model ID'] != '':
     #     session.model.load_model(args['Model ID'], map_location=get_map_location())
     if args["Train Params"] is None:
