@@ -202,18 +202,13 @@ class Model:
             model.add_file(model_path)
             self.autoencoder.save(train_dir, epoch)
 
-    def load_model(self, model_id, map_location):
-        version, model_name, run_title = model_id.split(",")  # 0,test,run_title
-        try:
-            model_dir = self.root / "models" / model_name / "versions" / run_title
-            self.autoencoder.load(model_dir, version, map_location=map_location)
-            print("first method is working")
-        except FileNotFoundError:
-            model_dir = (
-                Path("/mnt/home/nayebiga/SeqEncoder/SeqEN/models")
-                / model_name
-                / "versions"
-                / run_title
-            )
-            self.autoencoder.load(model_dir, version, map_location=map_location)
-            print("second method is working")
+    # def load_model(self, model_id, map_location):
+    #     version, model_name, run_title = model_id.split(',')          # 0,test,run_title
+    #     try:
+    #         model_dir = self.root / 'models' / model_name / 'versions' / run_title
+    #         self.autoencoder.load(model_dir, version, map_location=map_location)
+    #         print('first method is working')
+    #     except FileNotFoundError:
+    #         model_dir = Path('/mnt/home/nayebiga/SeqEncoder/SeqEN/models') / model_name / 'versions' / run_title
+    #         self.autoencoder.load(model_dir, version, map_location=map_location)
+    #         print('second method is working')

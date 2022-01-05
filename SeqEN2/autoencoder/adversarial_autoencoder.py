@@ -89,22 +89,22 @@ class AdversarialAutoencoder(Module):
     def load(self, model_dir, version, map_location):
         self.vectorizer = torch_load(
             model_dir / f"vectorizer_{version}.m", map_location=map_location
-        ).__copy__()
+        )
         self.encoder = torch_load(
             model_dir / f"encoder_{version}.m", map_location=map_location
-        ).__copy__()
+        )
         self.decoder = torch_load(
             model_dir / f"decoder_{version}.m", map_location=map_location
-        ).__copy__()
+        )
         self.devectorizer = torch_load(
             model_dir / f"devectorizer_{version}.m", map_location=map_location
-        ).__copy__()
+        )
         self.classifier = torch_load(
             model_dir / f"classifier_{version}.m", map_location=map_location
-        ).__copy__()
+        )
         self.discriminator = torch_load(
             model_dir / f"discriminator_{version}.m", map_location=map_location
-        ).__copy__()
+        )
 
     def initialize_training_components(self, training_params=None):
         if training_params is None:

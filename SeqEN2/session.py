@@ -7,6 +7,7 @@ __version__ = "0.0.1"
 
 # imports
 from SeqEN2.model.model import Model
+from SeqEN2.utils.data_loader import read_json
 from os import system
 from glob import glob
 from SeqEN2.utils.custom_arg_parser import TrainSessionArgParser
@@ -22,56 +23,59 @@ def get_map_location():
 
 
 class Session:
-    def __init__(
-        self, model_name, train_data, test_data, d0=21, d1=8, dn=10, w=20, lr=0.01
-    ):
-        self.model = Model(
-            name=model_name,
-            train_data=train_data,
-            test_data=test_data,
-            d0=d0,
-            d1=d1,
-            dn=dn,
-            w=w,
-            lr=lr,
-        )
+    def __init__(self, name, arch, d0=21, d1=8, dn=10, w=20):
+        self.model = Model(name, arch, d0=d0, d1=d1, dn=dn, w=w)
+
+    def load_data(self, train_data, test_data):
+        self.model.load_data(train_data, test_data)
 
     def train(
-        self, run_title, epochs=10, batch_size=128, num_test_items=1, test_interval=100
+        self,
+        run_title,
+        epochs=10,
+        batch_size=128,
+        num_test_items=1,
+        test_interval=100,
+        training_params=None,
     ):
         self.model.train(
+            run_title,
             epochs=epochs,
             batch_size=batch_size,
             num_test_items=num_test_items,
             test_interval=test_interval,
-            run_title=run_title,
+            training_params=training_params,
         )
 
 
 def main(args):
+    # load datafiles
     data_files = sorted(glob(str(Model.root) + f"/data/{args['Dataset']}/*.csv.gz"))
     train_data = data_files[2:]
     test_data = data_files[:2]
     # session
     session = Session(
         args["Model Name"],
-        train_data,
-        test_data,
+        read_json(args["Arch"]),
         d0=args["D0"],
         d1=args["D1"],
         dn=args["Dn"],
         w=args["W"],
-        lr=args["Learning Rate"],
     )
-    if args["Model ID"] != "":
-        session.model.load_model(args["Model ID"], map_location=get_map_location())
-
+    session.load_data(train_data, test_data)
+    # if args['Model ID'] != '':
+    #     session.model.load_model(args['Model ID'], map_location=get_map_location())
+    if args["Train Params"] is None:
+        training_params = None
+    else:
+        training_params = read_json(args["Train Params"])
     session.train(
         args["Run Title"],
         epochs=args["Epochs"],
         batch_size=args["Train Batch"],
         num_test_items=args["Test Batch"],
         test_interval=args["Test Interval"],
+        training_params=training_params,
     )
 
 
