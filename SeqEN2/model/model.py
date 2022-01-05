@@ -9,10 +9,10 @@ from glob import glob
 from os.path import dirname
 from pathlib import Path
 
-import wandb
 from torch import cuda, device
 from torch import save as torch_save
 
+import wandb
 from SeqEN2.autoencoder.adversarial_autoencoder import AdversarialAutoencoder
 from SeqEN2.utils.data_loader import DataLoader
 
@@ -74,6 +74,7 @@ class Model:
         num_test_items=1,
         test_interval=100,
         training_params=None,
+        input_noise=0.0
     ):
         '''
         The main training loop for a model
@@ -89,6 +90,7 @@ class Model:
         self.config = wandb.config
         self.config.learning_rate = training_params
         self.config.batch_size = batch_size
+        self.config.input_noise = input_noise
         self.config.dataset_name = self.dataset_name
         self.autoencoder.initialize_training_components(training_params=training_params)
         wandb.watch(self.autoencoder)
@@ -108,14 +110,14 @@ class Model:
         for epoch in range(start_epoch, start_epoch + epochs):
             wandb.log({"epoch": epoch})
             for batch in self.data_loader.get_train_batch(batch_size=batch_size):
-                self.autoencoder.train_batch(batch, self.device)
+                self.autoencoder.train_batch(batch, self.device, input_noise=input_noise)
                 iter_for_test += 1
                 if iter_for_test == test_interval:
                     iter_for_test = 0
                     for test_batch in self.data_loader.get_test_batch(
                         num_test_items=num_test_items
                     ):
-                        self.autoencoder.test_batch(test_batch, self.device)
+                        self.autoencoder.test_batch(test_batch, self.device, input_noise=input_noise)
             model_path = str(train_dir / f"epoch_{epoch}.model")
             torch_save(self.autoencoder, model_path)
             model.add_file(model_path)
