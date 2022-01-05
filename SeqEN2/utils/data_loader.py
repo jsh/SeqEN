@@ -50,6 +50,7 @@ class DataLoader:
         self.test_data_files = test_data_files
         self.train_data = None
         self.test_data = None
+        self.test_items = None
 
     def prepare_test_data(self):
         if self.test_data is None:
