@@ -75,3 +75,6 @@ class TrainSessionArgParser(SessionParser):
         self.parser.add_argument(
             "-tp", "--train_params", type=str, help="Train Params", default=None
         )
+        self.parser.add_argument(
+            "-mt", "--model_type", type=str, help="Model Type", default="AE"
+        )
