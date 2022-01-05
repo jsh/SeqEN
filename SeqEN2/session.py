@@ -6,6 +6,8 @@ __version__ = "0.0.1"
 
 
 # imports
+from os.path import dirname
+from pathlib import Path
 from SeqEN2.model.model import Model
 from SeqEN2.utils.data_loader import read_json
 from os import system
@@ -23,8 +25,25 @@ def get_map_location():
 
 
 class Session:
-    def __init__(self, name, arch, d0=21, d1=8, dn=10, w=20):
-        self.model = Model(name, arch, d0=d0, d1=d1, dn=dn, w=w)
+
+    root = Path(dirname(__file__)).parent
+
+    def __init__(self):
+        # setup dirs
+        self.models_dir = self.root / 'model'
+        if not self.models_dir.exists():
+            self.models_dir.mkdir()
+        self.data_dir = self.root / 'data'
+        if not self.data_dir.exists():
+            self.data_dir.mkdir()
+
+        # model placeholder
+        self.model = None
+
+
+    def add_model(self, name, arch, d0=21, d1=8, dn=10, w=20):
+        if self.model is None:
+            self.model = Model(name, arch, d0=d0, d1=d1, dn=dn, w=w)
 
     def load_data(self, train_data, test_data):
         self.model.load_data(train_data, test_data)
@@ -54,13 +73,14 @@ def main(args):
     train_data = data_files[2:]
     test_data = data_files[:2]
     # session
-    session = Session(
+    session = Session()
+    session.add_model(
         args["Model Name"],
         read_json(args["Arch"]),
         d0=args["D0"],
         d1=args["D1"],
         dn=args["Dn"],
-        w=args["W"],
+        w=args["W"]
     )
     session.load_data(train_data, test_data)
     # if args['Model ID'] != '':
