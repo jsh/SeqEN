@@ -14,9 +14,9 @@ from torch import save as torch_save
 
 import wandb
 from SeqEN2.autoencoder.adversarial_autoencoder import (
-    Autoencoder,
     AdversarialAutoencoder,
     AdversarialAutoencoderClassifier,
+    Autoencoder,
 )
 from SeqEN2.utils.data_loader import DataLoader
 
