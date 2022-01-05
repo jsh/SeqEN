@@ -117,10 +117,10 @@ class AdversarialAutoencoder(Module):
         # define customized optimizers
         self.reconstructor_optimizer = optim.SGD(
             [
-                {"params": self.autoencoder.vectorizer.parameters()},
-                {"params": self.autoencoder.encoder.parameters()},
-                {"params": self.autoencoder.decoder.parameters()},
-                {"params": self.autoencoder.devectorizer.parameters()},
+                {"params": self.vectorizer.parameters()},
+                {"params": self.encoder.parameters()},
+                {"params": self.decoder.parameters()},
+                {"params": self.devectorizer.parameters()},
             ],
             lr=self.training_params["reconstructor"]["lr"],
         )
@@ -133,9 +133,9 @@ class AdversarialAutoencoder(Module):
         ###
         self.generator_optimizer = optim.SGD(
             [
-                {"params": self.autoencoder.vectorizer.parameters()},
-                {"params": self.autoencoder.encoder.parameters()},
-                {"params": self.autoencoder.discriminator.parameters()},
+                {"params": self.vectorizer.parameters()},
+                {"params": self.encoder.parameters()},
+                {"params": self.discriminator.parameters()},
             ],
             lr=self.training_params["generator"]["lr"],
         )
@@ -147,7 +147,7 @@ class AdversarialAutoencoder(Module):
         )
         ###
         self.discriminator_optimizer = optim.SGD(
-            [{"params": self.autoencoder.discriminator.parameters()}],
+            [{"params": self.discriminator.parameters()}],
             lr=self.training_params["discriminator"]["lr"],
         )
         self.discriminator_lr_scheduler = CustomLRScheduler(
@@ -159,9 +159,9 @@ class AdversarialAutoencoder(Module):
         ###
         self.classifier_optimizer = optim.SGD(
             [
-                {"params": self.autoencoder.vectorizer.parameters()},
-                {"params": self.autoencoder.encoder.parameters()},
-                {"params": self.autoencoder.classifier.parameters()},
+                {"params": self.vectorizer.parameters()},
+                {"params": self.encoder.parameters()},
+                {"params": self.classifier.parameters()},
             ],
             lr=self.training_params["classifier"]["lr"],
         )
