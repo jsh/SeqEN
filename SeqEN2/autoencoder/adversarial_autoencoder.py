@@ -5,11 +5,15 @@
 __version__ = "0.0.1"
 
 
+import wandb
+from torch import argmax, float32
 from torch import load as torch_load
-from torch import optim
+from torch import no_grad, ones, optim, randperm
 from torch import save as torch_save
-from torch import transpose
+from torch import sum as torch_sum
+from torch import tensor, transpose, zeros
 from torch.nn import Module, MSELoss, NLLLoss
+from torch.nn.functional import one_hot
 
 from SeqEN2.autoencoder.utils import Architecture, CustomLRScheduler, LayerMaker
 
@@ -171,3 +175,117 @@ class AdversarialAutoencoder(Module):
             patience=self.training_params["classifier"]["patience"],
             min_lr=self.training_params["classifier"]["min_lr"],
         )
+
+    def train_batch(self, input_vals, device):
+        '''
+        Training for one batch of data, this will move into autoencoder module
+        :param input_vals:
+        :return:
+        '''
+        self.train()
+        input_ndx = tensor(input_vals[:, : self.w], device=device).long()
+        one_hot_input = one_hot(input_ndx, num_classes=self.d0) * 1.0
+        # train encoder_decoder
+        self.reconstructor_optimizer.zero_grad()
+        reconstructor_output = self.forward_encoder_decoder(one_hot_input)
+        reconstructor_loss = self.criterion_NLLLoss(
+            reconstructor_output, input_ndx.reshape((-1,))
+        )
+        reconstructor_loss.backward()
+        self.reconstructor_optimizer.step()
+        wandb.log({"reconstructor_loss": reconstructor_loss.item()})
+        wandb.log(
+            {
+                "reconstructor_LR": self.reconstructor_lr_scheduler.get_last_lr()
+            }
+        )
+        self.reconstructor_lr_scheduler.step(reconstructor_loss.item())
+        # train generator
+        self.generator_optimizer.zero_grad()
+        generator_output = self.forward_generator(one_hot_input)
+        generator_loss = self.criterion_NLLLoss(
+            generator_output,
+            zeros((generator_output.shape[0],), device=device).long(),
+        )
+        generator_loss.backward()
+        self.generator_optimizer.step()
+        wandb.log({"generator_loss": generator_loss.item()})
+        wandb.log(
+            {"generator_LR": self.generator_lr_scheduler.get_last_lr()}
+        )
+        # train discriminator
+        self.discriminator_optimizer.zero_grad()
+        ndx = randperm(self.w)
+        discriminator_output = self.forward_discriminator(
+            one_hot_input[:, ndx, :]
+        )
+        discriminator_loss = self.criterion_NLLLoss(
+            discriminator_output,
+            ones((discriminator_output.shape[0],), device=device).long(),
+        )
+        discriminator_loss.backward()
+        self.discriminator_optimizer.step()
+        wandb.log({"discriminator_loss": discriminator_loss.item()})
+        wandb.log(
+            {
+                "discriminator_LR": self.discriminator_lr_scheduler.get_last_lr()
+            }
+        )
+        gen_disc_loss = 0.5 * (generator_loss.item() + discriminator_loss.item())
+        self.generator_lr_scheduler.step(gen_disc_loss)
+        self.discriminator_lr_scheduler.step(gen_disc_loss)
+        # train classifier
+        self.classifier_optimizer.zero_grad()
+        classifier_target = tensor(
+            input_vals[:, self.w :], device=device, dtype=float32
+        )
+        classifier_output = self.forward_classifier(one_hot_input)
+        classifier_loss = self.criterion_MSELoss(
+            classifier_output, classifier_target
+        )
+        classifier_loss.backward()
+        self.classifier_optimizer.step()
+        wandb.log({"classifier_loss": classifier_loss.item()})
+        wandb.log(
+            {"classifier_LR": self.classifier_lr_scheduler.get_last_lr()}
+        )
+        self.classifier_lr_scheduler.step(classifier_loss.item())
+
+    def test_batch(self, input_vals, device):
+        '''
+        Test a single batch of data, this will move into autoencoder
+        :param input_vals:
+        :return:
+        '''
+        with no_grad():
+            input_ndx = tensor(input_vals[:, : self.w], device=device).long()
+            one_hot_input = one_hot(input_ndx, num_classes=self.d0) * 1.0
+            (
+                reconstructor_output,
+                generator_output,
+                classifier_output,
+            ) = self.forward_test(one_hot_input)
+            reconstructor_loss = self.criterion_NLLLoss(
+                reconstructor_output, input_ndx.reshape((-1,))
+            )
+            generator_loss = self.criterion_NLLLoss(
+                generator_output,
+                zeros((generator_output.shape[0],), device=device).long(),
+            )
+            classifier_target = tensor(
+                input_vals[:, self.w :], device=device, dtype=float32
+            )
+            classifier_loss = self.criterion_MSELoss(
+                classifier_output, classifier_target
+            )
+            # reconstructor acc
+            reconstructor_ndx = argmax(reconstructor_output, dim=1)
+            reconstructor_accuracy = (
+                torch_sum(reconstructor_ndx == input_ndx.reshape((-1,)))
+                / reconstructor_ndx.shape[0]
+            )
+            # reconstruction_loss, discriminator_loss, classifier_loss
+            wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
+            wandb.log({"test_generator_loss": generator_loss.item()})
+            wandb.log({"test_classifier_loss": classifier_loss.item()})
+            wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
