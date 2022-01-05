@@ -40,6 +40,9 @@ class Session:
         self.arch_dir = self.root / "arch"
         if not self.arch_dir.exists():
             self.arch_dir.mkdir()
+        self.train_params_dir = self.root / "train_params"
+        if not self.train_params_dir.exists():
+            self.train_params_dir.mkdir()
 
         # model placeholder
         self.model = None
@@ -57,6 +60,12 @@ class Session:
         arch_path = self.root / "arch" / f"{arch}.json"
         return read_json(arch_path)
 
+    def load_train_params(self, train_params=None):
+        if train_params is not None:
+            train_params_path = self.root / "train_params" / f"{train_params}.json"
+            train_params = read_json(train_params_path)
+        return train_params
+
     def train(
         self,
         run_title,
@@ -65,7 +74,9 @@ class Session:
         num_test_items=1,
         test_interval=100,
         training_params=None,
+        input_noise=0.0
     ):
+        training_params = self.load_train_params(training_params)
         self.model.train(
             run_title,
             epochs=epochs,
@@ -73,6 +84,7 @@ class Session:
             num_test_items=num_test_items,
             test_interval=test_interval,
             training_params=training_params,
+            input_noise=input_noise
         )
 
 
@@ -81,7 +93,7 @@ def main(args):
     session = Session()
     session.add_model(
         args["Model Name"],
-        read_json(args["Arch"]),
+        args["Arch"],
         d0=args["D0"],
         d1=args["D1"],
         dn=args["Dn"],
@@ -91,17 +103,14 @@ def main(args):
     session.load_data(args["Dataset"])
     # if args['Model ID'] != '':
     #     session.model.load_model(args['Model ID'], map_location=get_map_location())
-    if args["Train Params"] is None:
-        training_params = None
-    else:
-        training_params = read_json(args["Train Params"])
     session.train(
         args["Run Title"],
         epochs=args["Epochs"],
         batch_size=args["Train Batch"],
         num_test_items=args["Test Batch"],
         test_interval=args["Test Interval"],
-        training_params=training_params,
+        training_params=args["Train Params"],
+        input_noise=args["Input Noise"]
     )
 
 
