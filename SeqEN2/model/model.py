@@ -125,7 +125,7 @@ class Model:
         self.autoencoder.classifier_optimizer.step()
         wandb.log({"classifier_loss": classifier_loss.item()})
         wandb.log(
-            {"classifier_LR": self.autoencoder.classifier_lr_scheduler.get_last_lr()[0]}
+            {"classifier_LR": self.autoencoder.classifier_lr_scheduler.get_last_lr()}
         )
         self.autoencoder.classifier_lr_scheduler.step(classifier_loss.item())
 
@@ -181,15 +181,16 @@ class Model:
         wandb.watch(self.autoencoder)
         model = wandb.Artifact(f"{self.name}_model", type="model")
         train_dir = self.versions_path / f"{run_title}"
+        start_epoch = 0
         if not train_dir.exists():
             train_dir.mkdir()
-            start_epoch = 0
         else:
             saved_models = [
                 int(fp.split("/")[-1].split(".")[0].split("_")[-1])
                 for fp in glob(str(train_dir) + f"/epoch_*.model")
             ]
-            start_epoch = max(saved_models)
+            if saved_models:
+                start_epoch = max(saved_models)
         iter_for_test = 0
         for epoch in range(start_epoch, start_epoch + epochs):
             wandb.log({"epoch": epoch})
