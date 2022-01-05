@@ -5,7 +5,7 @@
 __version__ = "0.0.1"
 
 
-import wandb
+from numpy.random import choice
 from torch import argmax, float32
 from torch import load as torch_load
 from torch import no_grad, ones, optim, randperm
@@ -15,6 +15,7 @@ from torch import tensor, transpose, zeros
 from torch.nn import Module, MSELoss, NLLLoss
 from torch.nn.functional import one_hot
 
+import wandb
 from SeqEN2.autoencoder.utils import Architecture, CustomLRScheduler, LayerMaker
 
 
@@ -176,15 +177,14 @@ class AdversarialAutoencoder(Module):
             min_lr=self.training_params["classifier"]["min_lr"],
         )
 
-    def train_batch(self, input_vals, device):
+    def train_batch(self, input_vals, device, input_noise=0.0):
         '''
         Training for one batch of data, this will move into autoencoder module
         :param input_vals:
         :return:
         '''
         self.train()
-        input_ndx = tensor(input_vals[:, : self.w], device=device).long()
-        one_hot_input = one_hot(input_ndx, num_classes=self.d0) * 1.0
+        input_ndx, one_hot_input = self.transform_input(input_vals, device, input_noise=input_noise)
         # train encoder_decoder
         self.reconstructor_optimizer.zero_grad()
         reconstructor_output = self.forward_encoder_decoder(one_hot_input)
@@ -251,15 +251,14 @@ class AdversarialAutoencoder(Module):
         )
         self.classifier_lr_scheduler.step(classifier_loss.item())
 
-    def test_batch(self, input_vals, device):
+    def test_batch(self, input_vals, device, input_noise=0.0):
         '''
         Test a single batch of data, this will move into autoencoder
         :param input_vals:
         :return:
         '''
         with no_grad():
-            input_ndx = tensor(input_vals[:, : self.w], device=device).long()
-            one_hot_input = one_hot(input_ndx, num_classes=self.d0) * 1.0
+            input_ndx, one_hot_input = self.transform_input(input_vals, device, input_noise=input_noise)
             (
                 reconstructor_output,
                 generator_output,
@@ -289,3 +288,16 @@ class AdversarialAutoencoder(Module):
             wandb.log({"test_generator_loss": generator_loss.item()})
             wandb.log({"test_classifier_loss": classifier_loss.item()})
             wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+
+    def transform_input(self, input_vals, device, input_noise=0.0):
+        input_ndx = tensor(input_vals[:, : self.w], device=device).long()
+        one_hot_input = one_hot(input_ndx, num_classes=self.d0) * 1.0
+        if input_noise > 0.0:
+            ndx = randperm(self.w)
+            size = list(one_hot_input.shape)
+            size[-1] = 1
+            p = tensor(choice([1, 0], p=[input_noise, 1-input_noise], size=size)).to(device)
+            mutated_one_hot = (one_hot_input[:, ndx, :] * p) + (one_hot_input * (1-p))
+            return input_ndx, mutated_one_hot
+        else:
+            return input_ndx, one_hot_input
