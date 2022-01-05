@@ -74,7 +74,7 @@ class Session:
         num_test_items=1,
         test_interval=100,
         training_params=None,
-        input_noise=0.0
+        input_noise=0.0,
     ):
         training_params = self.load_train_params(training_params)
         self.model.train(
@@ -84,7 +84,7 @@ class Session:
             num_test_items=num_test_items,
             test_interval=test_interval,
             training_params=training_params,
-            input_noise=input_noise
+            input_noise=input_noise,
         )
 
 
@@ -110,7 +110,7 @@ def main(args):
         num_test_items=args["Test Batch"],
         test_interval=args["Test Interval"],
         training_params=args["Train Params"],
-        input_noise=args["Input Noise"]
+        input_noise=args["Input Noise"],
     )
 
 
