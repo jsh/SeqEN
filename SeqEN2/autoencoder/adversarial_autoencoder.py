@@ -11,7 +11,6 @@ from torch import save as torch_save
 from torch import transpose
 from torch.nn import Module, MSELoss, NLLLoss
 
-# imports
 from SeqEN2.autoencoder.utils import Architecture, CustomLRScheduler, LayerMaker
 
 

@@ -8,7 +8,6 @@ __version__ = "0.0.1"
 from glob import glob
 from os import system
 
-# imports
 from os.path import dirname
 from pathlib import Path
 

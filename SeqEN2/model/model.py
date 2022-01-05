@@ -21,6 +21,9 @@ from SeqEN2.utils.data_loader import DataLoader
 
 
 class Model:
+    '''
+    The Model object contains the ML unit and training dataset
+    '''
 
     root = Path(dirname(__file__)).parent.parent
 
@@ -47,6 +50,12 @@ class Model:
             self.versions_path.mkdir()
 
     def load_data(self, dataset_name, datasets):
+        '''
+        Loading data once for a model to make sure the training/test sets are fixed.
+        :param dataset_name:
+        :param datasets:
+        :return:
+        '''
         if self.dataset_name is None:
             self.dataset_name = dataset_name
         # load datafiles
@@ -61,6 +70,11 @@ class Model:
         self.data_loader = DataLoader(self.train_data, self.test_data)
 
     def train_batch(self, input_vals):
+        '''
+        Training for one batch of data, this will move into autoencoder module
+        :param input_vals:
+        :return:
+        '''
         self.autoencoder.train()
         input_ndx = tensor(input_vals[:, : self.w], device=self.device).long()
         one_hot_input = one_hot(input_ndx, num_classes=self.d0) * 1.0
@@ -131,6 +145,11 @@ class Model:
         self.autoencoder.classifier_lr_scheduler.step(classifier_loss.item())
 
     def test_batch(self, input_vals):
+        '''
+        Test a single batch of data, this will move into autoencoder
+        :param input_vals:
+        :return:
+        '''
         with no_grad():
             input_ndx = tensor(input_vals[:, : self.w], device=self.device).long()
             one_hot_input = one_hot(input_ndx, num_classes=self.d0) * 1.0
@@ -173,6 +192,16 @@ class Model:
         test_interval=100,
         training_params=None,
     ):
+        '''
+        The main training loop for a model
+        :param run_title:
+        :param epochs:
+        :param batch_size:
+        :param num_test_items:
+        :param test_interval:
+        :param training_params:
+        :return:
+        '''
         wandb.init(project=self.name, name=run_title)
         self.config = wandb.config
         self.config.learning_rate = training_params
