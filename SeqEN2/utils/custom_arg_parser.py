@@ -47,9 +47,7 @@ class TrainSessionArgParser(SessionParser):
         self.parser.add_argument(
             "-d", "--dataset", type=str, help="Dataset", required=True
         )
-        self.parser.add_argument(
-            "-a", "--arch", type=str, help="Arch", required=True
-        )
+        self.parser.add_argument("-a", "--arch", type=str, help="Arch", required=True)
         # add one argument for test train split
         self.parser.add_argument("-d0", "--d0", type=int, help="D0", default=21)
         self.parser.add_argument("-d1", "--d1", type=int, help="D1", default=8)
