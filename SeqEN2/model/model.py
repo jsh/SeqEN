@@ -13,14 +13,14 @@ from torch import cuda, device
 from torch import save as torch_save
 
 import wandb
-from SeqEN2.autoencoder.adversarial_autoencoder import AdversarialAutoencoder
+from SeqEN2.autoencoder.adversarial_autoencoder import AdversarialAutoencoderClassifier
 from SeqEN2.utils.data_loader import DataLoader
 
 
 class Model:
-    '''
+    """
     The Model object contains the ML unit and training dataset
-    '''
+    """
 
     root = Path(dirname(__file__)).parent.parent
 
@@ -33,7 +33,7 @@ class Model:
         self.dn = dn
         self.w = w
         self.device = device("cuda" if cuda.is_available() else "cpu")
-        self.autoencoder = AdversarialAutoencoder(
+        self.autoencoder = AdversarialAutoencoderClassifier(
             self.d0, self.d1, self.dn, self.w, arch
         )
         self.autoencoder.to(self.device)
@@ -47,12 +47,12 @@ class Model:
             self.versions_path.mkdir()
 
     def load_data(self, dataset_name, datasets):
-        '''
+        """
         Loading data once for a model to make sure the training/test sets are fixed.
         :param dataset_name:
         :param datasets:
         :return:
-        '''
+        """
         if self.dataset_name is None:
             self.dataset_name = dataset_name
         # load datafiles
@@ -74,9 +74,9 @@ class Model:
         num_test_items=1,
         test_interval=100,
         training_params=None,
-        input_noise=0.0
+        input_noise=0.0,
     ):
-        '''
+        """
         The main training loop for a model
         :param run_title:
         :param epochs:
@@ -84,8 +84,9 @@ class Model:
         :param num_test_items:
         :param test_interval:
         :param training_params:
+        :param input_noise:
         :return:
-        '''
+        """
         wandb.init(project=self.name, name=run_title)
         self.config = wandb.config
         self.config.learning_rate = training_params
@@ -110,14 +111,18 @@ class Model:
         for epoch in range(start_epoch, start_epoch + epochs):
             wandb.log({"epoch": epoch})
             for batch in self.data_loader.get_train_batch(batch_size=batch_size):
-                self.autoencoder.train_batch(batch, self.device, input_noise=input_noise)
+                self.autoencoder.train_batch(
+                    batch, self.device, input_noise=input_noise
+                )
                 iter_for_test += 1
                 if iter_for_test == test_interval:
                     iter_for_test = 0
                     for test_batch in self.data_loader.get_test_batch(
                         num_test_items=num_test_items
                     ):
-                        self.autoencoder.test_batch(test_batch, self.device, input_noise=input_noise)
+                        self.autoencoder.test_batch(
+                            test_batch, self.device, input_noise=input_noise
+                        )
             model_path = str(train_dir / f"epoch_{epoch}.model")
             torch_save(self.autoencoder, model_path)
             model.add_file(model_path)
