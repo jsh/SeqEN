@@ -5,13 +5,23 @@
 __version__ = "0.0.1"
 
 
-# imports
-from torch.nn import Sequential
-from torch.nn import Linear, Conv1d, ConvTranspose1d
-from torch.nn import Tanh, ReLU, LogSoftmax, Softmax, Sigmoid
-from torch.nn import Flatten, Unflatten, MaxPool1d
 from torch import optim
 
+# imports
+from torch.nn import (
+    Conv1d,
+    ConvTranspose1d,
+    Flatten,
+    Linear,
+    LogSoftmax,
+    MaxPool1d,
+    ReLU,
+    Sequential,
+    Sigmoid,
+    Softmax,
+    Tanh,
+    Unflatten,
+)
 
 # common funcs
 

@@ -7,8 +7,9 @@ __version__ = "0.0.1"
 
 # imports
 import json
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 
 # data tools

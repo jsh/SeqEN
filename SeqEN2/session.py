@@ -5,15 +5,18 @@
 __version__ = "0.0.1"
 
 
+from glob import glob
+from os import system
+
 # imports
 from os.path import dirname
 from pathlib import Path
-from SeqEN2.model.model import Model
-from SeqEN2.utils.data_loader import read_json
-from os import system
-from glob import glob
-from SeqEN2.utils.custom_arg_parser import TrainSessionArgParser
+
 from torch import cuda
+
+from SeqEN2.model.model import Model
+from SeqEN2.utils.custom_arg_parser import TrainSessionArgParser
+from SeqEN2.utils.data_loader import read_json
 
 
 def get_map_location():

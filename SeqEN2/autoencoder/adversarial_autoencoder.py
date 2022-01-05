@@ -5,13 +5,14 @@
 __version__ = "0.0.1"
 
 
-# imports
-from SeqEN2.autoencoder.utils import Architecture, LayerMaker, CustomLRScheduler
-from torch.nn import Module
-from torch.nn import NLLLoss, MSELoss
-from torch import optim, transpose
-from torch import save as torch_save
 from torch import load as torch_load
+from torch import optim
+from torch import save as torch_save
+from torch import transpose
+from torch.nn import Module, MSELoss, NLLLoss
+
+# imports
+from SeqEN2.autoencoder.utils import Architecture, CustomLRScheduler, LayerMaker
 
 
 # class for AAE

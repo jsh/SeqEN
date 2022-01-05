@@ -5,18 +5,19 @@
 __version__ = "0.0.1"
 
 
-from os.path import dirname
-import wandb
 from glob import glob
-
-from torch.nn.functional import one_hot
-from torch import tensor, zeros, ones, randperm, float32
-from torch import cuda, device, no_grad, argmax
-from torch import sum as torch_sum
-from SeqEN2.utils.data_loader import DataLoader
-from torch import save as torch_save
+from os.path import dirname
 from pathlib import Path
+
+import wandb
+from torch import argmax, cuda, device, float32, no_grad, ones, randperm
+from torch import save as torch_save
+from torch import sum as torch_sum
+from torch import tensor, zeros
+from torch.nn.functional import one_hot
+
 from SeqEN2.autoencoder.adversarial_autoencoder import AdversarialAutoencoder
+from SeqEN2.utils.data_loader import DataLoader
 
 
 class Model:
