@@ -13,7 +13,11 @@ from torch import cuda, device
 from torch import save as torch_save
 
 import wandb
-from SeqEN2.autoencoder.adversarial_autoencoder import AdversarialAutoencoderClassifier
+from SeqEN2.autoencoder.adversarial_autoencoder import (
+    Autoencoder,
+    AdversarialAutoencoder,
+    AdversarialAutoencoderClassifier,
+)
 from SeqEN2.utils.data_loader import DataLoader
 
 
@@ -24,7 +28,7 @@ class Model:
 
     root = Path(dirname(__file__)).parent.parent
 
-    def __init__(self, name, arch, d0=21, d1=8, dn=10, w=20):
+    def __init__(self, name, arch, model_type, d0=21, d1=8, dn=10, w=20):
         self.name = name
         self.path = self.root / "models" / f"{self.name}"
         self.versions_path = self.path / "versions"
@@ -33,10 +37,8 @@ class Model:
         self.dn = dn
         self.w = w
         self.device = device("cuda" if cuda.is_available() else "cpu")
-        self.autoencoder = AdversarialAutoencoderClassifier(
-            self.d0, self.d1, self.dn, self.w, arch
-        )
-        self.autoencoder.to(self.device)
+        self.autoencoder = None
+        self.build_model(model_type, arch)
         self.train_data = None
         self.test_data = None
         self.data_loader = None
@@ -45,6 +47,19 @@ class Model:
         if not self.path.exists():
             self.path.mkdir()
             self.versions_path.mkdir()
+
+    def build_model(self, model_type, arch):
+        if model_type == "AE":
+            self.autoencoder = Autoencoder(self.d0, self.d1, self.dn, self.w, arch)
+        elif model_type == "AAE":
+            self.autoencoder = AdversarialAutoencoder(
+                self.d0, self.d1, self.dn, self.w, arch
+            )
+        elif model_type == "AAEC":
+            self.autoencoder = AdversarialAutoencoderClassifier(
+                self.d0, self.d1, self.dn, self.w, arch
+            )
+        self.autoencoder.to(self.device)
 
     def load_data(self, dataset_name, datasets):
         """
