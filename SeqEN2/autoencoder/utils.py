@@ -23,9 +23,10 @@ from torch.nn import (
 
 
 class Architecture(object):
-    '''
+    """
     The Architecture object provides the model arch params as a json/dict
-    '''
+    """
+
     def __init__(self, architecture):
         if isinstance(architecture, dict):
             self.architecture = architecture
@@ -60,9 +61,10 @@ class Architecture(object):
 
 
 class LayerMaker(object):
-    '''
+    """
     The LayerMaker object will host related functions to build ML models
-    '''
+    """
+
     def make(self, arch):
         layers = []
         for layer in arch:
@@ -95,9 +97,10 @@ class LayerMaker(object):
 
 
 class CustomLRScheduler(optim.lr_scheduler.ReduceLROnPlateau):
-    '''
+    """
     CustomLRScheduler adds get_last_lr method to ReduceLROnPlateau class
-    '''
+    """
+
     def __init__(self, *args, **kwargs):
         super(CustomLRScheduler, self).__init__(*args, **kwargs)
         self._last_lr = None
