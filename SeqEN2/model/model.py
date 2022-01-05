@@ -39,17 +39,25 @@ class Model:
         self.train_data = None
         self.test_data = None
         self.data_loader = None
+        self.dataset_name = None
         self.config = None
         if not self.path.exists():
             self.path.mkdir()
             self.versions_path.mkdir()
 
-    def load_data(self, train_data, test_data):
+    def load_data(self, dataset_name, datasets):
+        if self.dataset_name is None:
+            self.dataset_name = dataset_name
+        # load datafiles
+        num_files = len(datasets)
+        test_data_files = max(1, num_files//10)
+        train_data = datasets[test_data_files:]
+        test_data = datasets[:test_data_files]
         if self.test_data is None:
             self.test_data = test_data
         if self.train_data is None:
             self.train_data = train_data
-        self.data_loader = DataLoader(train_data, test_data)
+        self.data_loader = DataLoader(self.train_data, self.test_data)
 
     def train_batch(self, input_vals):
         self.autoencoder.train()
@@ -66,9 +74,7 @@ class Model:
         wandb.log({"reconstructor_loss": reconstructor_loss.item()})
         wandb.log(
             {
-                "reconstructor_LR": self.autoencoder.reconstructor_lr_scheduler.get_last_lr()[
-                    0
-                ]
+                "reconstructor_LR": self.autoencoder.reconstructor_lr_scheduler.get_last_lr()
             }
         )
         self.autoencoder.reconstructor_lr_scheduler.step(reconstructor_loss.item())
@@ -83,7 +89,7 @@ class Model:
         self.autoencoder.generator_optimizer.step()
         wandb.log({"generator_loss": generator_loss.item()})
         wandb.log(
-            {"generator_LR": self.autoencoder.generator_lr_scheduler.get_last_lr()[0]}
+            {"generator_LR": self.autoencoder.generator_lr_scheduler.get_last_lr()}
         )
         # train discriminator
         self.autoencoder.discriminator_optimizer.zero_grad()
@@ -100,9 +106,7 @@ class Model:
         wandb.log({"discriminator_loss": discriminator_loss.item()})
         wandb.log(
             {
-                "discriminator_LR": self.autoencoder.discriminator_lr_scheduler.get_last_lr()[
-                    0
-                ]
+                "discriminator_LR": self.autoencoder.discriminator_lr_scheduler.get_last_lr()
             }
         )
         gen_disc_loss = 0.5 * (generator_loss.item() + discriminator_loss.item())
@@ -172,6 +176,7 @@ class Model:
         self.config = wandb.config
         self.config.learning_rate = training_params
         self.config.batch_size = batch_size
+        self.config.dataset_name = self.dataset_name
         self.autoencoder.initialize_training_components(training_params=training_params)
         wandb.watch(self.autoencoder)
         model = wandb.Artifact(f"{self.name}_model", type="model")
