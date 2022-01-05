@@ -47,10 +47,10 @@ class Session:
         # model placeholder
         self.model = None
 
-    def add_model(self, name, arch, d0=21, d1=8, dn=10, w=20):
+    def add_model(self, name, arch, model_type, d0=21, d1=8, dn=10, w=20):
         arch = self.load_arch(arch)
         if self.model is None:
-            self.model = Model(name, arch, d0=d0, d1=d1, dn=dn, w=w)
+            self.model = Model(name, arch, model_type, d0=d0, d1=d1, dn=dn, w=w)
 
     def load_data(self, dataset_name):
         data_files = sorted(glob(str(Model.root) + f"/data/{dataset_name}/*.csv.gz"))
@@ -94,6 +94,7 @@ def main(args):
     session.add_model(
         args["Model Name"],
         args["Arch"],
+        args["Model Type"],
         d0=args["D0"],
         d1=args["D1"],
         dn=args["Dn"],
