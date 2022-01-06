@@ -87,6 +87,9 @@ class Session:
             input_noise=input_noise,
         )
 
+    def test(self, num_test_items=1, input_noise=0.0):
+        self.model.test(num_test_items=num_test_items, input_noise=input_noise)
+
 
 def main(args):
     # session
