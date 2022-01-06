@@ -13,8 +13,8 @@ from torch import sum as torch_sum
 from torch import transpose, zeros
 
 import wandb
-from SeqEN2.autoencoder.utils import CustomLRScheduler, LayerMaker
 from SeqEN2.autoencoder.autoencoder import Autoencoder
+from SeqEN2.autoencoder.utils import CustomLRScheduler, LayerMaker
 
 
 # class for AAE

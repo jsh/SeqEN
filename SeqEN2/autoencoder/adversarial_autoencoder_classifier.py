@@ -14,8 +14,8 @@ from torch import tensor, transpose, zeros
 from torch.nn import MSELoss
 
 import wandb
-from SeqEN2.autoencoder.utils import CustomLRScheduler, LayerMaker
 from SeqEN2.autoencoder.adversarial_autoencoder import AdversarialAutoencoder
+from SeqEN2.autoencoder.utils import CustomLRScheduler, LayerMaker
 
 
 # class for AAE Classifier
