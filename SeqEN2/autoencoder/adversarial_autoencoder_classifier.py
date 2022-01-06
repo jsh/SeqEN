@@ -113,7 +113,7 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
         del classifier_output
         del classifier_loss
 
-    def test_batch(self, input_vals, device, input_noise=0.0):
+    def test_batch(self, input_vals, device, input_noise=0.0, wandb_log=True):
         """
         Test a single batch of data, this will move into autoencoder
         :param input_vals:
@@ -148,10 +148,13 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
                 / reconstructor_ndx.shape[0]
             )
             # reconstruction_loss, discriminator_loss, classifier_loss
-            wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
-            wandb.log({"test_generator_loss": generator_loss.item()})
-            wandb.log({"test_classifier_loss": classifier_loss.item()})
-            wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+            if wandb_log:
+                wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
+                wandb.log({"test_generator_loss": generator_loss.item()})
+                wandb.log({"test_classifier_loss": classifier_loss.item()})
+                wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+            else:
+                return reconstructor_loss, generator_loss, classifier_loss, reconstructor_accuracy
             # clean up
             del reconstructor_output
             del generator_output
@@ -160,3 +163,4 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
             del generator_loss
             del classifier_target
             del classifier_loss
+            return

@@ -149,7 +149,7 @@ class Autoencoder(Module):
         del reconstructor_loss
         del reconstructor_output
 
-    def test_batch(self, input_vals, device, input_noise=0.0):
+    def test_batch(self, input_vals, device, input_noise=0.0, wandb_log=True):
         """
         Test a single batch of data, this will move into autoencoder
         :param input_vals:
@@ -170,8 +170,12 @@ class Autoencoder(Module):
                 / reconstructor_ndx.shape[0]
             )
             # reconstruction_loss, discriminator_loss, classifier_loss
-            wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
-            wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+            if wandb_log:
+                wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
+                wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+            else:
+                return reconstructor_loss, reconstructor_accuracy
             # clean up
             del reconstructor_loss
             del reconstructor_output
+            return
