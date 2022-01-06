@@ -141,6 +141,9 @@ class Autoencoder(Module):
         self.reconstructor_optimizer.step()
         wandb.log({"reconstructor_loss": reconstructor_loss.item()})
         wandb.log({"reconstructor_LR": self.reconstructor_lr_scheduler.get_last_lr()})
+        self.training_params["reconstructor"][
+            "lr"
+        ] = self.reconstructor_lr_scheduler.get_last_lr()
         self.reconstructor_lr_scheduler.step(reconstructor_loss.item())
 
     def test_batch(self, input_vals, device, input_noise=0.0):
@@ -268,6 +271,9 @@ class AdversarialAutoencoder(Autoencoder):
         self.generator_optimizer.step()
         wandb.log({"generator_loss": generator_loss.item()})
         wandb.log({"generator_LR": self.generator_lr_scheduler.get_last_lr()})
+        self.training_params["generator"][
+            "lr"
+        ] = self.generator_lr_scheduler.get_last_lr()
         # train discriminator
         self.discriminator_optimizer.zero_grad()
         ndx = randperm(self.w)
@@ -280,6 +286,9 @@ class AdversarialAutoencoder(Autoencoder):
         self.discriminator_optimizer.step()
         wandb.log({"discriminator_loss": discriminator_loss.item()})
         wandb.log({"discriminator_LR": self.discriminator_lr_scheduler.get_last_lr()})
+        self.training_params["discriminator"][
+            "lr"
+        ] = self.discriminator_lr_scheduler.get_last_lr()
         gen_disc_loss = 0.5 * (generator_loss.item() + discriminator_loss.item())
         self.generator_lr_scheduler.step(gen_disc_loss)
         self.discriminator_lr_scheduler.step(gen_disc_loss)
@@ -402,6 +411,9 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
         self.classifier_optimizer.step()
         wandb.log({"classifier_loss": classifier_loss.item()})
         wandb.log({"classifier_LR": self.classifier_lr_scheduler.get_last_lr()})
+        self.training_params["classifier"][
+            "lr"
+        ] = self.classifier_lr_scheduler.get_last_lr()
         self.classifier_lr_scheduler.step(classifier_loss.item())
 
     def test_batch(self, input_vals, device, input_noise=0.0):

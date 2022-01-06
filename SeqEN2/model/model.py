@@ -18,7 +18,7 @@ from SeqEN2.autoencoder.adversarial_autoencoder import (
     AdversarialAutoencoderClassifier,
     Autoencoder,
 )
-from SeqEN2.utils.data_loader import DataLoader
+from SeqEN2.utils.data_loader import DataLoader, write_json
 
 
 class Model:
@@ -39,8 +39,7 @@ class Model:
         self.device = device("cuda" if cuda.is_available() else "cpu")
         self.autoencoder = None
         self.build_model(model_type, arch)
-        self.train_data = None
-        self.test_data = None
+        self.data = {"train_data": None, "test_data": None}
         self.data_loader = None
         self.dataset_name = None
         self.config = None
@@ -75,11 +74,11 @@ class Model:
         test_data_files = max(1, num_files // 10)
         train_data = datasets[test_data_files:]
         test_data = datasets[:test_data_files]
-        if self.test_data is None:
-            self.test_data = test_data
-        if self.train_data is None:
-            self.train_data = train_data
-        self.data_loader = DataLoader(self.train_data, self.test_data)
+        if self.data["test_data"] is None:
+            self.data["test_data"] = test_data
+        if self.data["train_data"] is None:
+            self.data["train_data"] = train_data
+        self.data_loader = DataLoader(self.data["train_data"], self.data["test_data"])
 
     def train(
         self,
@@ -104,26 +103,21 @@ class Model:
         """
         wandb.init(project=self.name, name=run_title)
         self.config = wandb.config
-        self.config.learning_rate = training_params
         self.config.batch_size = batch_size
         self.config.input_noise = input_noise
         self.config.dataset_name = self.dataset_name
         self.autoencoder.initialize_for_training(training_params)
+        self.config.training_params = self.autoencoder.training_params
         wandb.watch(self.autoencoder)
         model = wandb.Artifact(f"{self.name}_model", type="model")
         train_dir = self.versions_path / f"{run_title}"
-        start_epoch = 0
         if not train_dir.exists():
             train_dir.mkdir()
         else:
-            saved_models = [
-                int(fp.split("/")[-1].split(".")[0].split("_")[-1])
-                for fp in glob(str(train_dir) + f"/epoch_*.model")
-            ]
-            if saved_models:
-                start_epoch = max(saved_models)
+            print("Choose a different title for the run!")
+            return
         iter_for_test = 0
-        for epoch in range(start_epoch, start_epoch + epochs):
+        for epoch in range(0, epochs):
             wandb.log({"epoch": epoch})
             for batch in self.data_loader.get_train_batch(batch_size=batch_size):
                 self.autoencoder.train_batch(
@@ -142,6 +136,12 @@ class Model:
             torch_save(self.autoencoder, model_path)
             model.add_file(model_path)
             self.autoencoder.save(train_dir, epoch)
+
+        write_json(
+            self.autoencoder.training_params,
+            str(train_dir / f"{run_title}_train_params.json"),
+        )
+        write_json(self.data, str(train_dir / f"{run_title}_data.json"))
 
     # def load_model(self, model_id, map_location):
     #     version, model_name, run_title = model_id.split(',')          # 0,test,run_title
