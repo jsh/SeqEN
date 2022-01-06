@@ -117,6 +117,7 @@ class Model:
             print("Choose a different title for the run!")
             return
         iter_for_test = 0
+        write_json(self.data, str(train_dir / f"{run_title}_data.json"))
         for epoch in range(0, epochs):
             wandb.log({"epoch": epoch})
             for batch in self.data_loader.get_train_batch(batch_size=batch_size):
@@ -137,11 +138,11 @@ class Model:
             model.add_file(model_path)
             self.autoencoder.save(train_dir, epoch)
 
-        write_json(
-            self.autoencoder.training_params,
-            str(train_dir / f"{run_title}_train_params.json"),
-        )
-        write_json(self.data, str(train_dir / f"{run_title}_data.json"))
+            write_json(
+                self.autoencoder.training_params,
+                str(train_dir / f"{run_title}_train_params.json"),
+            )
+
 
     # def load_model(self, model_id, map_location):
     #     version, model_name, run_title = model_id.split(',')          # 0,test,run_title
