@@ -6,13 +6,13 @@ __version__ = "0.0.1"
 
 
 from numpy.random import choice
-from torch import argmax, float32
+from torch import argmax
 from torch import load as torch_load
-from torch import no_grad, ones, optim, randperm
+from torch import no_grad, optim, randperm
 from torch import save as torch_save
 from torch import sum as torch_sum
-from torch import tensor, transpose, zeros
-from torch.nn import Module, MSELoss, NLLLoss
+from torch import tensor, transpose
+from torch.nn import Module, NLLLoss
 from torch.nn.functional import one_hot
 
 import wandb

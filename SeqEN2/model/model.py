@@ -141,7 +141,6 @@ class Model:
                 str(train_dir / f"{run_title}_train_params.json"),
             )
 
-
     # def load_model(self, model_id, map_location):
     #     version, model_name, run_title = model_id.split(',')          # 0,test,run_title
     #     try:
