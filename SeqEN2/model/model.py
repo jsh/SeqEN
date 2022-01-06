@@ -130,7 +130,7 @@ class Model:
                     for test_batch in self.data_loader.get_test_batch(
                         num_test_items=num_test_items
                     ):
-                        self.autoencoder.test_batch(
+                        _ = self.autoencoder.test_batch(
                             test_batch, self.device, input_noise=input_noise
                         )
             model_path = str(train_dir / f"epoch_{epoch}.model")
@@ -141,6 +141,24 @@ class Model:
             write_json(
                 self.autoencoder.training_params,
                 str(train_dir / f"{run_title}_train_params.json"),
+            )
+
+    def test(
+        self,
+        num_test_items=1,
+        input_noise=0.0,
+    ):
+        """
+        The main training loop for a model
+        :param num_test_items:
+        :param input_noise:
+        :return:
+        """
+        for test_batch in self.data_loader.get_test_batch(
+            num_test_items=num_test_items
+        ):
+            results = self.autoencoder.test_batch(
+                test_batch, self.device, input_noise=input_noise, wandb_log=False
             )
 
     # def load_model(self, model_id, map_location):
