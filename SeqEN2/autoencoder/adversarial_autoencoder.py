@@ -145,6 +145,9 @@ class Autoencoder(Module):
             "lr"
         ] = self.reconstructor_lr_scheduler.get_last_lr()
         self.reconstructor_lr_scheduler.step(reconstructor_loss.item())
+        # clean up
+        del reconstructor_loss
+        del reconstructor_output
 
     def test_batch(self, input_vals, device, input_noise=0.0):
         """
@@ -169,6 +172,9 @@ class Autoencoder(Module):
             # reconstruction_loss, discriminator_loss, classifier_loss
             wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
             wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+            # clean up
+            del reconstructor_loss
+            del reconstructor_output
 
 
 ################################################################################################
@@ -292,6 +298,11 @@ class AdversarialAutoencoder(Autoencoder):
         gen_disc_loss = 0.5 * (generator_loss.item() + discriminator_loss.item())
         self.generator_lr_scheduler.step(gen_disc_loss)
         self.discriminator_lr_scheduler.step(gen_disc_loss)
+        # clean up
+        del generator_output
+        del generator_loss
+        del discriminator_output
+        del discriminator_loss
 
     def test_batch(self, input_vals, device, input_noise=0.0):
         """
@@ -321,6 +332,11 @@ class AdversarialAutoencoder(Autoencoder):
             wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
             wandb.log({"test_generator_loss": generator_loss.item()})
             wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+            # clean up
+            del reconstructor_output
+            del generator_output
+            del reconstructor_loss
+            del generator_loss
 
 
 ################################################################################################
@@ -415,6 +431,9 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
             "lr"
         ] = self.classifier_lr_scheduler.get_last_lr()
         self.classifier_lr_scheduler.step(classifier_loss.item())
+        # clean up
+        del classifier_output
+        del classifier_loss
 
     def test_batch(self, input_vals, device, input_noise=0.0):
         """
@@ -455,3 +474,11 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
             wandb.log({"test_generator_loss": generator_loss.item()})
             wandb.log({"test_classifier_loss": classifier_loss.item()})
             wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+            # clean up
+            del reconstructor_output
+            del generator_output
+            del classifier_output
+            del reconstructor_loss
+            del generator_loss
+            del classifier_target
+            del classifier_loss
