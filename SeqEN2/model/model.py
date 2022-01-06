@@ -108,7 +108,7 @@ class Model:
         self.config.batch_size = batch_size
         self.config.input_noise = input_noise
         self.config.dataset_name = self.dataset_name
-        self.autoencoder.initialize_training_components(training_params=training_params)
+        self.autoencoder.initialize_for_training(training_params)
         wandb.watch(self.autoencoder)
         model = wandb.Artifact(f"{self.name}_model", type="model")
         train_dir = self.versions_path / f"{run_title}"

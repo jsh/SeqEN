@@ -73,6 +73,21 @@ class Autoencoder(Module):
             model_dir / f"devectorizer_{version}.m", map_location=map_location
         )
 
+    def transform_input(self, input_vals, device, input_noise=0.0):
+        input_ndx = tensor(input_vals[:, : self.w], device=device).long()
+        one_hot_input = one_hot(input_ndx, num_classes=self.d0) * 1.0
+        if input_noise > 0.0:
+            ndx = randperm(self.w)
+            size = list(one_hot_input.shape)
+            size[-1] = 1
+            p = tensor(choice([1, 0], p=[input_noise, 1 - input_noise], size=size)).to(
+                device
+            )
+            mutated_one_hot = (one_hot_input[:, ndx, :] * p) + (one_hot_input * (1 - p))
+            return input_ndx, mutated_one_hot
+        else:
+            return input_ndx, one_hot_input
+
     def set_training_params(self, training_params=None):
         if training_params is None:
             self.training_params = {
@@ -82,8 +97,7 @@ class Autoencoder(Module):
         else:
             self.training_params = training_params
 
-    def initialize_training_components(self, training_params=None):
-        self.set_training_params(training_params=training_params)
+    def initialize_training_components(self):
         # define customized optimizers
         self.reconstructor_optimizer = optim.SGD(
             [
@@ -101,20 +115,9 @@ class Autoencoder(Module):
             min_lr=self.training_params["reconstructor"]["min_lr"],
         )
 
-    def transform_input(self, input_vals, device, input_noise=0.0):
-        input_ndx = tensor(input_vals[:, : self.w], device=device).long()
-        one_hot_input = one_hot(input_ndx, num_classes=self.d0) * 1.0
-        if input_noise > 0.0:
-            ndx = randperm(self.w)
-            size = list(one_hot_input.shape)
-            size[-1] = 1
-            p = tensor(choice([1, 0], p=[input_noise, 1 - input_noise], size=size)).to(
-                device
-            )
-            mutated_one_hot = (one_hot_input[:, ndx, :] * p) + (one_hot_input * (1 - p))
-            return input_ndx, mutated_one_hot
-        else:
-            return input_ndx, one_hot_input
+    def initialize_for_training(self, training_params):
+        self.set_training_params(training_params=training_params)
+        self.initialize_training_components()
 
     def train_batch(self, input_vals, device, input_noise=0.0):
         """
@@ -214,8 +217,8 @@ class AdversarialAutoencoder(Autoencoder):
         else:
             self.training_params = training_params
 
-    def initialize_training_components(self, training_params=None):
-        super(AdversarialAutoencoder, self).set_training_params(training_params)
+    def initialize_training_components(self):
+        super(AdversarialAutoencoder, self).initialize_training_components()
         # define customized optimizers
         self.generator_optimizer = optim.SGD(
             [
@@ -359,10 +362,8 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
         else:
             self.training_params = training_params
 
-    def initialize_training_components(self, training_params=None):
-        super(AdversarialAutoencoderClassifier, self).set_training_params(
-            training_params
-        )
+    def initialize_training_components(self):
+        super(AdversarialAutoencoderClassifier, self).initialize_training_components()
         # define customized optimizers
         self.classifier_optimizer = optim.SGD(
             [
