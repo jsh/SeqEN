@@ -171,7 +171,9 @@ class AdversarialAutoencoder(Autoencoder):
             if wandb_log:
                 wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
                 wandb.log({"test_generator_loss": generator_loss.item()})
-                wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+                wandb.log(
+                    {"test_reconstructor_accuracy": reconstructor_accuracy.item()}
+                )
             else:
                 return reconstructor_loss, generator_loss, reconstructor_accuracy
             # clean up
