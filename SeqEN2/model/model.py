@@ -5,7 +5,6 @@
 __version__ = "0.0.1"
 
 
-from glob import glob
 from os.path import dirname
 from pathlib import Path
 
@@ -143,11 +142,7 @@ class Model:
                 str(train_dir / f"{run_title}_train_params.json"),
             )
 
-    def test(
-        self,
-        num_test_items=1,
-        input_noise=0.0,
-    ):
+    def test(self, num_test_items=1, input_noise=0.0):
         """
         The main training loop for a model
         :param num_test_items:
