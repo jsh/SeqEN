@@ -13,11 +13,9 @@ from torch import cuda, device
 from torch import save as torch_save
 
 import wandb
-from SeqEN2.autoencoder.adversarial_autoencoder import (
-    AdversarialAutoencoder,
-    AdversarialAutoencoderClassifier,
-    Autoencoder,
-)
+from SeqEN2.autoencoder.autoencoder import Autoencoder
+from SeqEN2.autoencoder.adversarial_autoencoder import AdversarialAutoencoder
+from SeqEN2.autoencoder.adversarial_autoencoder_classifier import AdversarialAutoencoderClassifier
 from SeqEN2.utils.data_loader import DataLoader, write_json
 
 
