@@ -45,12 +45,18 @@ def load(filename):
 
 
 class DataLoader:
-    def __init__(self, train_data_files, test_data_files):
-        self.train_data_files = train_data_files
-        self.test_data_files = test_data_files
+    def __init__(self):
+        self.train_data_files = None
+        self.test_data_files = None
         self.train_data = None
         self.test_data = None
         self.test_items = None
+
+    def set_train_data_files(self, train_data_files):
+        self.train_data_files = train_data_files
+
+    def set_test_data_files(self, test_data_files):
+        self.test_data_files = test_data_files
 
     def prepare_test_data(self):
         if self.test_data is None:
@@ -60,15 +66,19 @@ class DataLoader:
             )
 
     def get_train_batch(self, batch_size=128):
-        for train_data_file in self.train_data_files:
-            self.train_data = (
-                load(train_data_file).sample(frac=1).reset_index(drop=True)
-            )
-            num_batch = len(self.train_data) // batch_size
-            for i in range(num_batch + 1):
-                yield self.train_data.iloc[i * batch_size : (i + 1) * batch_size].values
+        if self.train_data_files is not None:
+            for train_data_file in self.train_data_files:
+                self.train_data = load(train_data_file).sample(frac=1).reset_index(drop=True)
+                num_batch = len(self.train_data) // batch_size
+                for i in range(num_batch + 1):
+                    yield self.train_data.iloc[i * batch_size : (i + 1) * batch_size].values
+        # else: raise NotDefinedError('train data files are not defined')
 
     def get_test_batch(self, num_test_items=10):
-        self.prepare_test_data()
-        for item in np.random.choice(self.test_items, size=num_test_items):
-            yield self.test_data[self.test_data.index.str.contains(item)].values
+        if self.train_data_files is not None:
+            self.prepare_test_data()
+            if num_test_items == -1:
+                num_test_items = len(self.test_items)
+            for item in np.random.choice(self.test_items, size=num_test_items):
+                yield self.test_data[self.test_data.index.str.contains(item)].values
+        # else: raise NotDefinedError('test data files are not defined')
