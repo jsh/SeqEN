@@ -163,7 +163,13 @@ class AdversarialAutoencoder(Autoencoder):
                 wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
                 wandb.log({"test_consensus_accuracy": consensus_seq_acc})
             else:
-                return reconstructor_loss, generator_loss, reconstructor_accuracy, consensus_seq_acc, consensus_seq
+                return (
+                    reconstructor_loss,
+                    generator_loss,
+                    reconstructor_accuracy,
+                    consensus_seq_acc,
+                    consensus_seq,
+                )
             # clean up
             del reconstructor_output
             del generator_output
