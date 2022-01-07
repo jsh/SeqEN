@@ -86,7 +86,7 @@ class Autoencoder(Module):
     def set_training_params(self, training_params=None):
         if training_params is None:
             self.training_params = {
-                key: {"lr": 0.01, "factor": 0.99, "patience": 10000, "min_lr": 0.00001}
+                key: {"lr": 0.01, "factor": 0.9, "patience": 10000, "min_lr": 0.00001}
                 for key in ["reconstructor"]
             }
         else:
