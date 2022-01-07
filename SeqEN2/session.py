@@ -29,7 +29,8 @@ class Session:
 
     root = Path(dirname(__file__)).parent
 
-    def __init__(self):
+    def __init__(self, is_testing=False):
+        self.is_testing = is_testing
         # setup dirs
         self.models_dir = self.root / "models"
         if not self.models_dir.exists():
@@ -54,6 +55,10 @@ class Session:
 
     def load_data(self, dataset_name):
         data_files = sorted(glob(str(Model.root) + f"/data/{dataset_name}/*.csv.gz"))
+        if len(data_files) < 2:
+            raise ValueError("At least two separate files are required for building a model.")
+        if self.is_testing:
+            data_files = data_files[:2]
         self.model.load_data(dataset_name, data_files)
 
     def load_arch(self, arch):
@@ -76,6 +81,8 @@ class Session:
         training_params=None,
         input_noise=0.0,
     ):
+        if self.is_testing:
+            epochs = 1
         training_params = self.load_train_params(training_params)
         self.model.train(
             run_title,
@@ -87,13 +94,13 @@ class Session:
             input_noise=input_noise,
         )
 
-    def test(self, num_test_items=1, input_noise=0.0):
-        self.model.test(num_test_items=num_test_items, input_noise=input_noise)
+    def test(self, num_test_items=1):
+        self.model.test(num_test_items=num_test_items)
 
 
 def main(args):
     # session
-    session = Session()
+    session = Session(is_testing=args["Is Testing"])
     session.add_model(
         args["Model Name"],
         args["Arch"],
@@ -107,15 +114,21 @@ def main(args):
     session.load_data(args["Dataset"])
     # if args['Model ID'] != '':
     #     session.model.load_model(args['Model ID'], map_location=get_map_location())
-    session.train(
-        args["Run Title"],
-        epochs=args["Epochs"],
-        batch_size=args["Train Batch"],
-        num_test_items=args["Test Batch"],
-        test_interval=args["Test Interval"],
-        training_params=args["Train Params"],
-        input_noise=args["Input Noise"],
-    )
+    if args["No Train"]:
+        session.test(num_test_items=args["Test Batch"])
+    else:
+        session.train(
+            args["Run Title"],
+            epochs=args["Epochs"],
+            batch_size=args["Train Batch"],
+            num_test_items=args["Test Batch"],
+            test_interval=args["Test Interval"],
+            training_params=args["Train Params"],
+            input_noise=args["Input Noise"],
+        )
+    if session.is_testing:
+        train_dir = session.model.versions_path / args["Run Title"]
+        system(f"rm -r {train_dir}")
 
 
 if __name__ == "__main__":
