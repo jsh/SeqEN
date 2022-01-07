@@ -50,13 +50,9 @@ class Model:
         if model_type == "AE":
             self.autoencoder = Autoencoder(self.d0, self.d1, self.dn, self.w, arch)
         elif model_type == "AAE":
-            self.autoencoder = AdversarialAutoencoder(
-                self.d0, self.d1, self.dn, self.w, arch
-            )
+            self.autoencoder = AdversarialAutoencoder(self.d0, self.d1, self.dn, self.w, arch)
         elif model_type == "AAEC":
-            self.autoencoder = AdversarialAutoencoderClassifier(
-                self.d0, self.d1, self.dn, self.w, arch
-            )
+            self.autoencoder = AdversarialAutoencoderClassifier(self.d0, self.d1, self.dn, self.w, arch)
         self.autoencoder.to(self.device)
 
     def load_data(self, dataset_name, datasets):
@@ -120,18 +116,12 @@ class Model:
         for epoch in range(0, epochs):
             wandb.log({"epoch": epoch})
             for batch in self.data_loader.get_train_batch(batch_size=batch_size):
-                self.autoencoder.train_batch(
-                    batch, self.device, input_noise=input_noise
-                )
+                self.autoencoder.train_batch(batch, self.device, input_noise=input_noise)
                 iter_for_test += 1
                 if iter_for_test == test_interval:
                     iter_for_test = 0
-                    for test_batch in self.data_loader.get_test_batch(
-                        num_test_items=num_test_items
-                    ):
-                        _ = self.autoencoder.test_batch(
-                            test_batch, self.device, input_noise=input_noise
-                        )
+                    for test_batch in self.data_loader.get_test_batch(num_test_items=num_test_items):
+                        _ = self.autoencoder.test_batch(test_batch, self.device, input_noise=input_noise)
             model_path = str(train_dir / f"epoch_{epoch}.model")
             torch_save(self.autoencoder, model_path)
             model.add_file(model_path)
@@ -149,12 +139,10 @@ class Model:
         :param input_noise:
         :return:
         """
-        for test_batch in self.data_loader.get_test_batch(
-            num_test_items=num_test_items
-        ):
-            results = self.autoencoder.test_batch(
-                test_batch, self.device, input_noise=input_noise, wandb_log=False
-            )
+        for test_batch in self.data_loader.get_test_batch(num_test_items=num_test_items):
+            results = self.autoencoder.test_batch(test_batch, self.device, input_noise=input_noise, wandb_log=False)
+
+        # do stuff with results
 
     # def load_model(self, model_id, map_location):
     #     version, model_name, run_title = model_id.split(',')          # 0,test,run_title
