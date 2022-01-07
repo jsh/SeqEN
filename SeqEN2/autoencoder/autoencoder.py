@@ -160,7 +160,7 @@ class Autoencoder(Module):
                 torch_sum(reconstructor_ndx == input_ndx.reshape((-1,)))
                 / reconstructor_ndx.shape[0]
             )
-            consensus_seq_acc, consensus_seq = consensus_acc(
+            consensus_seq_acc, _ = consensus_acc(
                 input_ndx, reconstructor_ndx.reshape((-1, self.w)), device
             )
             # reconstruction_loss, discriminator_loss, classifier_loss
