@@ -15,6 +15,7 @@ from torch import transpose, zeros
 import wandb
 from SeqEN2.autoencoder.autoencoder import Autoencoder
 from SeqEN2.autoencoder.utils import CustomLRScheduler, LayerMaker
+from SeqEN2.utils.seq_tools import consensus_acc
 
 
 # class for AAE
@@ -52,9 +53,7 @@ class AdversarialAutoencoder(Autoencoder):
 
     def load(self, model_dir, version, map_location):
         super(AdversarialAutoencoder, self).load(model_dir, version, map_location)
-        self.discriminator = torch_load(
-            model_dir / f"discriminator_{version}.m", map_location=map_location
-        )
+        self.discriminator = torch_load(model_dir / f"discriminator_{version}.m", map_location=map_location)
 
     def set_training_params(self, training_params=None):
         if training_params is None:
@@ -102,9 +101,7 @@ class AdversarialAutoencoder(Autoencoder):
         :param input_noise:
         :return:
         """
-        super(AdversarialAutoencoder, self).train_batch(
-            input_vals, device, input_noise=input_noise
-        )
+        super(AdversarialAutoencoder, self).train_batch(input_vals, device, input_noise=input_noise)
         # train generator
         self.generator_optimizer.zero_grad()
         generator_output = self.forward_generator(self.one_hot_input)
@@ -116,9 +113,7 @@ class AdversarialAutoencoder(Autoencoder):
         self.generator_optimizer.step()
         wandb.log({"generator_loss": generator_loss.item()})
         wandb.log({"generator_LR": self.generator_lr_scheduler.get_last_lr()})
-        self.training_params["generator"][
-            "lr"
-        ] = self.generator_lr_scheduler.get_last_lr()
+        self.training_params["generator"]["lr"] = self.generator_lr_scheduler.get_last_lr()
         # train discriminator
         self.discriminator_optimizer.zero_grad()
         ndx = randperm(self.w)
@@ -131,9 +126,7 @@ class AdversarialAutoencoder(Autoencoder):
         self.discriminator_optimizer.step()
         wandb.log({"discriminator_loss": discriminator_loss.item()})
         wandb.log({"discriminator_LR": self.discriminator_lr_scheduler.get_last_lr()})
-        self.training_params["discriminator"][
-            "lr"
-        ] = self.discriminator_lr_scheduler.get_last_lr()
+        self.training_params["discriminator"]["lr"] = self.discriminator_lr_scheduler.get_last_lr()
         gen_disc_loss = 0.5 * (generator_loss.item() + discriminator_loss.item())
         self.generator_lr_scheduler.step(gen_disc_loss)
         self.discriminator_lr_scheduler.step(gen_disc_loss)
@@ -150,13 +143,9 @@ class AdversarialAutoencoder(Autoencoder):
         :return:
         """
         with no_grad():
-            input_ndx, one_hot_input = self.transform_input(
-                input_vals, device, input_noise=input_noise
-            )
+            input_ndx, one_hot_input = self.transform_input(input_vals, device, input_noise=input_noise)
             (reconstructor_output, generator_output) = self.forward_test(one_hot_input)
-            reconstructor_loss = self.criterion_NLLLoss(
-                reconstructor_output, input_ndx.reshape((-1,))
-            )
+            reconstructor_loss = self.criterion_NLLLoss(reconstructor_output, input_ndx.reshape((-1,)))
             generator_loss = self.criterion_NLLLoss(
                 generator_output,
                 zeros((generator_output.shape[0],), device=device).long(),
@@ -164,18 +153,17 @@ class AdversarialAutoencoder(Autoencoder):
             # reconstructor acc
             reconstructor_ndx = argmax(reconstructor_output, dim=1)
             reconstructor_accuracy = (
-                torch_sum(reconstructor_ndx == input_ndx.reshape((-1,)))
-                / reconstructor_ndx.shape[0]
+                torch_sum(reconstructor_ndx == input_ndx.reshape((-1,))) / reconstructor_ndx.shape[0]
             )
+            consensus_seq_acc, consensus_seq = consensus_acc(input_ndx, reconstructor_output, self.w, device)
             # reconstruction_loss, discriminator_loss, classifier_loss
             if wandb_log:
                 wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
                 wandb.log({"test_generator_loss": generator_loss.item()})
-                wandb.log(
-                    {"test_reconstructor_accuracy": reconstructor_accuracy.item()}
-                )
+                wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+                wandb.log({"test_consensus_accuracy": consensus_seq_acc})
             else:
-                return reconstructor_loss, generator_loss, reconstructor_accuracy
+                return reconstructor_loss, generator_loss, reconstructor_accuracy, consensus_seq_acc, consensus_seq
             # clean up
             del reconstructor_output
             del generator_output
