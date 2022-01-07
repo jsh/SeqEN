@@ -61,10 +61,14 @@ class Autoencoder(Module):
         torch_save(self.devectorizer, model_dir / f"devectorizer_{epoch}.m")
 
     def load(self, model_dir, version, map_location):
-        self.vectorizer = torch_load(model_dir / f"vectorizer_{version}.m", map_location=map_location)
+        self.vectorizer = torch_load(
+            model_dir / f"vectorizer_{version}.m", map_location=map_location
+        )
         self.encoder = torch_load(model_dir / f"encoder_{version}.m", map_location=map_location)
         self.decoder = torch_load(model_dir / f"decoder_{version}.m", map_location=map_location)
-        self.devectorizer = torch_load(model_dir / f"devectorizer_{version}.m", map_location=map_location)
+        self.devectorizer = torch_load(
+            model_dir / f"devectorizer_{version}.m", map_location=map_location
+        )
 
     def transform_input(self, input_vals, device, input_noise=0.0):
         input_ndx = tensor(input_vals[:, : self.w], device=device).long()
@@ -82,7 +86,8 @@ class Autoencoder(Module):
     def set_training_params(self, training_params=None):
         if training_params is None:
             self.training_params = {
-                key: {"lr": 0.01, "factor": 0.99, "patience": 10000, "min_lr": 0.00001} for key in ["reconstructor"]
+                key: {"lr": 0.01, "factor": 0.99, "patience": 10000, "min_lr": 0.00001}
+                for key in ["reconstructor"]
             }
         else:
             self.training_params = training_params
@@ -118,11 +123,15 @@ class Autoencoder(Module):
         :return:
         """
         self.train()
-        self.input_ndx, self.one_hot_input = self.transform_input(input_vals, device, input_noise=input_noise)
+        self.input_ndx, self.one_hot_input = self.transform_input(
+            input_vals, device, input_noise=input_noise
+        )
         # train encoder_decoder
         self.reconstructor_optimizer.zero_grad()
         reconstructor_output = self.forward_encoder_decoder(self.one_hot_input)
-        reconstructor_loss = self.criterion_NLLLoss(reconstructor_output, self.input_ndx.reshape((-1,)))
+        reconstructor_loss = self.criterion_NLLLoss(
+            reconstructor_output, self.input_ndx.reshape((-1,))
+        )
         reconstructor_loss.backward()
         self.reconstructor_optimizer.step()
         wandb.log({"reconstructor_loss": reconstructor_loss.item()})
@@ -133,35 +142,31 @@ class Autoencoder(Module):
         del reconstructor_loss
         del reconstructor_output
 
-    def test_batch(self, input_vals, device, input_noise=0.0, wandb_log=True):
+    def test_batch(self, input_vals, device):
         """
         Test a single batch of data, this will move into autoencoder
         :param input_vals:
         :return:
         """
         with no_grad():
-            input_ndx, one_hot_input = self.transform_input(input_vals, device, input_noise=input_noise)
+            input_ndx, one_hot_input = self.transform_input(input_vals, device, input_noise=0.0)
             reconstructor_output = self.forward_test(one_hot_input)
-            reconstructor_loss = self.criterion_NLLLoss(reconstructor_output, input_ndx.reshape((-1,)))
+            reconstructor_loss = self.criterion_NLLLoss(
+                reconstructor_output, input_ndx.reshape((-1,))
+            )
             # reconstructor acc
             reconstructor_ndx = argmax(reconstructor_output, dim=1)
             reconstructor_accuracy = (
-                torch_sum(reconstructor_ndx == input_ndx.reshape((-1,))) / reconstructor_ndx.shape[0]
+                torch_sum(reconstructor_ndx == input_ndx.reshape((-1,)))
+                / reconstructor_ndx.shape[0]
             )
-            consensus_seq_acc, consensus_seq = consensus_acc(input_ndx, reconstructor_output, self.w, device)
+            consensus_seq_acc, consensus_seq = consensus_acc(
+                input_ndx, reconstructor_ndx.reshape((-1, self.w)), device
+            )
             # reconstruction_loss, discriminator_loss, classifier_loss
-            if wandb_log:
-                wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
-                wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
-                wandb.log({"test_consensus_accuracy": consensus_seq_acc})
-            else:
-                return (
-                    reconstructor_loss,
-                    reconstructor_accuracy,
-                    consensus_seq_acc,
-                    consensus_seq,
-                )
+            wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
+            wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+            wandb.log({"test_consensus_accuracy": consensus_seq_acc})
             # clean up
             del reconstructor_loss
             del reconstructor_output
-            return

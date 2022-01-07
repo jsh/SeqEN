@@ -53,7 +53,9 @@ class AdversarialAutoencoder(Autoencoder):
 
     def load(self, model_dir, version, map_location):
         super(AdversarialAutoencoder, self).load(model_dir, version, map_location)
-        self.discriminator = torch_load(model_dir / f"discriminator_{version}.m", map_location=map_location)
+        self.discriminator = torch_load(
+            model_dir / f"discriminator_{version}.m", map_location=map_location
+        )
 
     def set_training_params(self, training_params=None):
         if training_params is None:
@@ -136,16 +138,20 @@ class AdversarialAutoencoder(Autoencoder):
         del discriminator_output
         del discriminator_loss
 
-    def test_batch(self, input_vals, device, input_noise=0.0, wandb_log=True):
+    def test_batch(self, input_vals, device, input_noise=0.0):
         """
         Test a single batch of data, this will move into autoencoder
         :param input_vals:
         :return:
         """
         with no_grad():
-            input_ndx, one_hot_input = self.transform_input(input_vals, device, input_noise=input_noise)
+            input_ndx, one_hot_input = self.transform_input(
+                input_vals, device, input_noise=input_noise
+            )
             (reconstructor_output, generator_output) = self.forward_test(one_hot_input)
-            reconstructor_loss = self.criterion_NLLLoss(reconstructor_output, input_ndx.reshape((-1,)))
+            reconstructor_loss = self.criterion_NLLLoss(
+                reconstructor_output, input_ndx.reshape((-1,))
+            )
             generator_loss = self.criterion_NLLLoss(
                 generator_output,
                 zeros((generator_output.shape[0],), device=device).long(),
@@ -153,26 +159,19 @@ class AdversarialAutoencoder(Autoencoder):
             # reconstructor acc
             reconstructor_ndx = argmax(reconstructor_output, dim=1)
             reconstructor_accuracy = (
-                torch_sum(reconstructor_ndx == input_ndx.reshape((-1,))) / reconstructor_ndx.shape[0]
+                torch_sum(reconstructor_ndx == input_ndx.reshape((-1,)))
+                / reconstructor_ndx.shape[0]
             )
-            consensus_seq_acc, consensus_seq = consensus_acc(input_ndx, reconstructor_output, self.w, device)
+            consensus_seq_acc, consensus_seq = consensus_acc(
+                input_ndx, reconstructor_ndx.reshape((-1, self.w)), device
+            )
             # reconstruction_loss, discriminator_loss, classifier_loss
-            if wandb_log:
-                wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
-                wandb.log({"test_generator_loss": generator_loss.item()})
-                wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
-                wandb.log({"test_consensus_accuracy": consensus_seq_acc})
-            else:
-                return (
-                    reconstructor_loss,
-                    generator_loss,
-                    reconstructor_accuracy,
-                    consensus_seq_acc,
-                    consensus_seq,
-                )
+            wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
+            wandb.log({"test_generator_loss": generator_loss.item()})
+            wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+            wandb.log({"test_consensus_accuracy": consensus_seq_acc})
             # clean up
             del reconstructor_output
             del generator_output
             del reconstructor_loss
             del generator_loss
-            return

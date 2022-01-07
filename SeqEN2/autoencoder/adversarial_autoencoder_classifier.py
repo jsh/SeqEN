@@ -51,7 +51,9 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
 
     def load(self, model_dir, version, map_location):
         super(AdversarialAutoencoderClassifier, self).load(model_dir, version, map_location)
-        self.classifier = torch_load(model_dir / f"classifier_{version}.m", map_location=map_location)
+        self.classifier = torch_load(
+            model_dir / f"classifier_{version}.m", map_location=map_location
+        )
 
     def set_training_params(self, training_params=None):
         if training_params is None:
@@ -88,7 +90,9 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
         :param input_noise:
         :return:
         """
-        super(AdversarialAutoencoderClassifier, self).train_batch(input_vals, device, input_noise=input_noise)
+        super(AdversarialAutoencoderClassifier, self).train_batch(
+            input_vals, device, input_noise=input_noise
+        )
         # train classifier
         self.classifier_optimizer.zero_grad()
         classifier_target = tensor(input_vals[:, self.w :], device=device, dtype=float32)
@@ -104,20 +108,24 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
         del classifier_output
         del classifier_loss
 
-    def test_batch(self, input_vals, device, input_noise=0.0, wandb_log=True):
+    def test_batch(self, input_vals, device, input_noise=0.0):
         """
         Test a single batch of data, this will move into autoencoder
         :param input_vals:
         :return:
         """
         with no_grad():
-            input_ndx, one_hot_input = self.transform_input(input_vals, device, input_noise=input_noise)
+            input_ndx, one_hot_input = self.transform_input(
+                input_vals, device, input_noise=input_noise
+            )
             (
                 reconstructor_output,
                 generator_output,
                 classifier_output,
             ) = self.forward_test(one_hot_input)
-            reconstructor_loss = self.criterion_NLLLoss(reconstructor_output, input_ndx.reshape((-1,)))
+            reconstructor_loss = self.criterion_NLLLoss(
+                reconstructor_output, input_ndx.reshape((-1,))
+            )
             generator_loss = self.criterion_NLLLoss(
                 generator_output,
                 zeros((generator_output.shape[0],), device=device).long(),
@@ -127,25 +135,18 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
             # reconstructor acc
             reconstructor_ndx = argmax(reconstructor_output, dim=1)
             reconstructor_accuracy = (
-                torch_sum(reconstructor_ndx == input_ndx.reshape((-1,))) / reconstructor_ndx.shape[0]
+                torch_sum(reconstructor_ndx == input_ndx.reshape((-1,)))
+                / reconstructor_ndx.shape[0]
             )
-            consensus_seq_acc, consensus_seq = consensus_acc(input_ndx, reconstructor_output, self.w, device)
+            consensus_seq_acc, consensus_seq = consensus_acc(
+                input_ndx, reconstructor_ndx.reshape((-1, self.w)), device
+            )
             # reconstruction_loss, discriminator_loss, classifier_loss
-            if wandb_log:
-                wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
-                wandb.log({"test_generator_loss": generator_loss.item()})
-                wandb.log({"test_classifier_loss": classifier_loss.item()})
-                wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
-                wandb.log({"test_consensus_accuracy": consensus_seq_acc})
-            else:
-                return (
-                    reconstructor_loss,
-                    generator_loss,
-                    classifier_loss,
-                    reconstructor_accuracy,
-                    consensus_seq_acc,
-                    consensus_seq,
-                )
+            wandb.log({"test_reconstructor_loss": reconstructor_loss.item()})
+            wandb.log({"test_generator_loss": generator_loss.item()})
+            wandb.log({"test_classifier_loss": classifier_loss.item()})
+            wandb.log({"test_reconstructor_accuracy": reconstructor_accuracy.item()})
+            wandb.log({"test_consensus_accuracy": consensus_seq_acc})
             # clean up
             del reconstructor_output
             del generator_output
@@ -154,4 +155,3 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
             del generator_loss
             del classifier_target
             del classifier_loss
-            return
