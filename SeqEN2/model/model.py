@@ -143,6 +143,7 @@ class Model:
             results = self.autoencoder.test_batch(test_batch, self.device, input_noise=input_noise, wandb_log=False)
 
         # do stuff with results
+        ###
 
     # def load_model(self, model_id, map_location):
     #     version, model_name, run_title = model_id.split(',')          # 0,test,run_title
