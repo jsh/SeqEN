@@ -35,6 +35,7 @@ class Model:
         self.d1 = d1
         self.dn = dn
         self.w = w
+        self.aa_keys = "WYFMILVAGPSTCEDQNHRK*"
         self.device = device("cuda" if cuda.is_available() else "cpu")
         self.autoencoder = None
         self.build_model(model_type, arch)
@@ -52,7 +53,9 @@ class Model:
         elif model_type == "AAE":
             self.autoencoder = AdversarialAutoencoder(self.d0, self.d1, self.dn, self.w, arch)
         elif model_type == "AAEC":
-            self.autoencoder = AdversarialAutoencoderClassifier(self.d0, self.d1, self.dn, self.w, arch)
+            self.autoencoder = AdversarialAutoencoderClassifier(
+                self.d0, self.d1, self.dn, self.w, arch
+            )
         self.autoencoder.to(self.device)
 
     def load_data(self, dataset_name, datasets):
@@ -73,7 +76,9 @@ class Model:
             self.data["test_data"] = test_data
         if self.data["train_data"] is None:
             self.data["train_data"] = train_data
-        self.data_loader = DataLoader(self.data["train_data"], self.data["test_data"])
+        self.data_loader = DataLoader()
+        self.data_loader.set_train_data_files(self.data["train_data"])
+        self.data_loader.set_test_data_files(self.data["test_data"])
 
     def train(
         self,
@@ -120,29 +125,24 @@ class Model:
                 iter_for_test += 1
                 if iter_for_test == test_interval:
                     iter_for_test = 0
-                    for test_batch in self.data_loader.get_test_batch(num_test_items=num_test_items):
-                        _ = self.autoencoder.test_batch(test_batch, self.device, input_noise=input_noise)
+                    self.test(num_test_items=num_test_items)
             model_path = str(train_dir / f"epoch_{epoch}.model")
             torch_save(self.autoencoder, model_path)
             model.add_file(model_path)
             self.autoencoder.save(train_dir, epoch)
-
             write_json(
                 self.autoencoder.training_params,
                 str(train_dir / f"{run_title}_train_params.json"),
             )
 
-    def test(self, num_test_items=1, input_noise=0.0):
+    def test(self, num_test_items=1):
         """
         The main training loop for a model
         :param num_test_items:
-        :param input_noise:
         :return:
         """
         for test_batch in self.data_loader.get_test_batch(num_test_items=num_test_items):
-            results = self.autoencoder.test_batch(test_batch, self.device, input_noise=input_noise, wandb_log=False)
-
-        # do stuff with results
+            self.autoencoder.test_batch(test_batch, self.device)
 
     # def load_model(self, model_id, map_location):
     #     version, model_name, run_title = model_id.split(',')          # 0,test,run_title
