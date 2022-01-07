@@ -20,7 +20,7 @@ def consensus(output, ndx, w, device):
     c_max = min(ndx, w - 1) + 1
     c_indices = tensor(range(c_min, c_max), device=device)
     sub_result = index_select(index_select(output, 0, r_indices), 1, c_indices)
-    return mode(diagonal(fliplr(fliplr(eye(filter_size).long()) * sub_result))).values.item()
+    return mode(diagonal(fliplr(fliplr(eye(filter_size, device=device).long()) * sub_result))).values.item()
 
 
 def consensus_acc(seq, output, w, device):
