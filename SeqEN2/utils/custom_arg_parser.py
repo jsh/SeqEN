@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
+# TODO: Replace "by" comment with LICENSE file.
+# TODO: Replace __version__ constant with annotated tag.
+# TODO: Remove shebang from module. (It's not an executable program.)
+# TODO: Remove '# coding: utf-8'. (This only says the Python source file is utf-8, the default for Python3. Doesn't affect I/O.)
+# TODO: Add docstrings.
+# TODO: Polish up trivial coding nits.
+# TODO: Add unit tests.
+# TODO: Add static typing.
+# TODO: Review the code itself
 
 # by nayebiga@msu.edu
 __version__ = "0.0.1"
