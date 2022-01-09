@@ -139,7 +139,7 @@ def main(args):
             input_noise=args["Input Noise"],
             training_params=args["Train Params"],
         )
-    if args["No Train"]:
+    elif args["No Train"]:
         session.test(num_test_items=args["Test Batch"])
     else:
         session.train(
