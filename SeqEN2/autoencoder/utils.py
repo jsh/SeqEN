@@ -31,9 +31,7 @@ class Architecture(object):
         if isinstance(architecture, dict):
             self.architecture = architecture
         else:
-            raise TypeError(
-                f"Architecture must be of type dict. {type(architecture)} is received."
-            )
+            raise TypeError(f"Architecture must be of type dict. {type(architecture)} is received.")
         self.name = self.architecture["name"]
         self.type = self.architecture["type"]
         self.vectorizer = None
@@ -73,6 +71,8 @@ class LayerMaker(object):
 
     def make_layer(self, layer):
         if layer["type"] == "Linear":
+            if "bias" in layer.keys():
+                return Linear(layer["in"], layer["out"], bias=layer["bias"])
             return Linear(layer["in"], layer["out"])
         elif layer["type"] == "Tanh":
             return Tanh()
