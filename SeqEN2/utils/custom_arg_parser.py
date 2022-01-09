@@ -1,50 +1,53 @@
-#!/usr/bin/env python
-# coding: utf-8
-# TODO: Replace "by" comment with LICENSE file.
-# TODO: Replace __version__ constant with annotated tag.
-# TODO: Remove shebang from module. (It's not an executable program.)
-# TODO: Remove '# coding: utf-8'. (This only says the Python source file is utf-8, the default for Python3. Doesn't affect I/O.)
+"""Module docstring."""
+# TODO: Create annotated tag for version v0.0.2
 # TODO: Add docstrings.
-# TODO: Polish up trivial coding nits.
 # TODO: Add unit tests.
 # TODO: Add static typing.
 # TODO: Review the code itself
-
-# by nayebiga@msu.edu
-__version__ = "0.0.1"
+# TODO: Add --verbose flag
 
 
-# imports
 from argparse import ArgumentParser
 
 
 class CustomArgParser(ArgumentParser):
-    def help_value_pairs(self):
+    """TODO: class docstring."""
+
+    def help_value_pairs(self) -> dict[str, str]:
+        """Parse CLI arguments, return dict of args, values."""
         parsed_args = self.parse_args()
         help_value_pair_dict = {}
-        for key, item in self.__dict__["_option_string_actions"].items():
+        for _, item in self.__dict__["_option_string_actions"].items():
             if item.dest in parsed_args.__dict__.keys():
                 help_value_pair_dict[item.help] = parsed_args.__dict__[item.dest]
         return help_value_pair_dict
 
 
 class SessionParser:
-    def __init__(self, desc):
+    """TODO: Class docstring."""
+
+    def __init__(self, desc) -> None:
+        """Create parser with description."""
         self.parser = CustomArgParser(description=desc)
         self.initialize()
 
-    def initialize(self):
-        pass
+    def initialize(self) -> None:
+        """No-op."""
 
-    def parsed(self):
+    def parsed(self) -> dict[str, str]:
+        """TODO: function docstring."""
         return self.parser.help_value_pairs()
 
 
 class TrainSessionArgParser(SessionParser):
-    def __init__(self):
-        super(TrainSessionArgParser, self).__init__("Train a protein sequence autoencoder")
+    """Capture options to configure training session."""
 
-    def initialize(self):
+    def __init__(self) -> None:
+        """Initialize & describe the class."""
+        super().__init__("Train a protein sequence autoencoder")
+
+    def initialize(self) -> None:
+        """Specify command-line options to capture."""
         self.parser.add_argument("-n", "--model", type=str, help="Model Name", required=True)
         self.parser.add_argument("-rt", "--run_title", type=str, help="Run Title", required=True)
         self.parser.add_argument("-d", "--dataset", type=str, help="Dataset", required=True)
