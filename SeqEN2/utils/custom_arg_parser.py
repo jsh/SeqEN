@@ -1,20 +1,11 @@
-#!/usr/bin/env python
-# coding: utf-8
-# TODO: Replace "by" comment with LICENSE file.
 # TODO: Replace __version__ constant with annotated tag.
-# TODO: Remove shebang from module. (It's not an executable program.)
-# TODO: Remove '# coding: utf-8'. (This only says the Python source file is utf-8, the default for Python3. Doesn't affect I/O.)
 # TODO: Add docstrings.
-# TODO: Polish up trivial coding nits.
 # TODO: Add unit tests.
 # TODO: Add static typing.
+# TODO: Add a debug flag ("--verbose, maybe?")
 # TODO: Review the code itself
 
-# by nayebiga@msu.edu
-__version__ = "0.0.1"
 
-
-# imports
 from argparse import ArgumentParser
 
 
@@ -22,9 +13,9 @@ class CustomArgParser(ArgumentParser):
     def help_value_pairs(self):
         parsed_args = self.parse_args()
         help_value_pair_dict = {}
-        for key, item in self.__dict__["_option_string_actions"].items():
-            if item.dest in parsed_args.__dict__.keys():
-                help_value_pair_dict[item.help] = parsed_args.__dict__[item.dest]
+        for value in self.__dict__["_option_string_actions"].values():
+            if value.dest in parsed_args.__dict__.keys():
+                help_value_pair_dict[value.help] = parsed_args.__dict__[value.dest]
         return help_value_pair_dict
 
 
@@ -42,7 +33,7 @@ class SessionParser:
 
 class TrainSessionArgParser(SessionParser):
     def __init__(self):
-        super(TrainSessionArgParser, self).__init__("Train a protein sequence autoencoder")
+        super().__init__("Train a protein sequence autoencoder")
 
     def initialize(self):
         self.parser.add_argument("-n", "--model", type=str, help="Model Name", required=True)
