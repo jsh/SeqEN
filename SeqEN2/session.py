@@ -97,21 +97,12 @@ class Session:
     def test(self, num_test_items=1):
         self.model.test(num_test_items=num_test_items)
 
-    def overfit_tests(self, epochs=1000, input_noise=0.0, training_params=None):
+    def overfit_tests(self, epochs=1000, num_test_items=1, input_noise=0.0, training_params=None):
         # overfit single sequence
         self.model.overfit(
-            "overfit_single",
+            f"overfit_{num_test_items}",
             epochs=epochs,
-            num_test_items=1,
-            input_noise=input_noise,
-            training_params=training_params,
-        )
-
-        # overfit 10 sequence
-        self.model.overfit(
-            "overfit_ten",
-            epochs=epochs,
-            num_test_items=10,
+            num_test_items=num_test_items,
             input_noise=input_noise,
             training_params=training_params,
         )
