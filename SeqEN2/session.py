@@ -97,6 +97,25 @@ class Session:
     def test(self, num_test_items=1):
         self.model.test(num_test_items=num_test_items)
 
+    def overfit_tests(self, epochs=1000, input_noise=0.0, training_params=None):
+        # overfit single sequence
+        self.model.overfit(
+            "overfit_single",
+            epochs=epochs,
+            num_test_items=1,
+            input_noise=input_noise,
+            training_params=training_params,
+        )
+
+        # overfit 10 sequence
+        self.model.overfit(
+            "overfit_ten",
+            epochs=epochs,
+            num_test_items=10,
+            input_noise=input_noise,
+            training_params=training_params,
+        )
+
 
 def main(args):
     # session
@@ -114,6 +133,12 @@ def main(args):
     session.load_data(args["Dataset"])
     # if args['Model ID'] != '':
     #     session.model.load_model(args['Model ID'], map_location=get_map_location())
+    if args["Overfiting"]:
+        session.overfit_tests(
+            epochs=args["Epochs"],
+            input_noise=args["Input Noise"],
+            training_params=args["Train Params"],
+        )
     if args["No Train"]:
         session.test(num_test_items=args["Test Batch"])
     else:
