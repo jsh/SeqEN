@@ -148,6 +148,7 @@ class Autoencoder(Module):
         :param input_vals:
         :return:
         """
+        self.eval()
         with no_grad():
             input_ndx, one_hot_input = self.transform_input(input_vals, device, input_noise=0.0)
             reconstructor_output = self.forward_test(one_hot_input)

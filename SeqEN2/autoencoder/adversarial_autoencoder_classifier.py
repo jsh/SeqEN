@@ -114,6 +114,7 @@ class AdversarialAutoencoderClassifier(AdversarialAutoencoder):
         :param input_vals:
         :return:
         """
+        self.eval()
         with no_grad():
             input_ndx, one_hot_input = self.transform_input(
                 input_vals, device, input_noise=input_noise
