@@ -5,6 +5,8 @@
 __version__ = "0.0.1"
 
 
+import gzip
+
 # imports
 import json
 
@@ -26,13 +28,25 @@ def read_fasta(filename):
 
 
 def read_json(filename):
-    with open(filename, "r") as file:
-        return json.load(file)
+    if filename.endswith(".json.gz"):
+        with gzip.open(filename, "r") as file:
+            return json.load(file)
+    elif filename.endswith(".json"):
+        with open(filename, "r") as file:
+            return json.load(file)
+    else:
+        raise IOError("File format must be .gz or .json.gz")
 
 
 def write_json(data_dict, filename):
-    with open(filename, "w") as file:
-        json.dump(data_dict, file)
+    if filename.endswith(".json.gz"):
+        with gzip.open(filename, "w") as file:
+            json.dump(data_dict, file)
+    elif filename.endswith(".json"):
+        with open(filename, "w") as file:
+            json.dump(data_dict, file)
+    else:
+        raise IOError("File format must be .gz or .json.gz")
 
 
 def load(filename):
