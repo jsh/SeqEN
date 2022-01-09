@@ -66,3 +66,6 @@ class TrainSessionArgParser(SessionParser):
         self.parser.add_argument(
             "-it", "--is_testing", help="Is Testing", action="store_true", default=False
         )
+        self.parser.add_argument(
+            "-of", "--overfiting", help="Overfiting", action="store_true", default=False
+        )
