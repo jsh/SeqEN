@@ -6,8 +6,6 @@ __version__ = "0.0.1"
 
 
 import gzip
-
-# imports
 import json
 
 import numpy as np
