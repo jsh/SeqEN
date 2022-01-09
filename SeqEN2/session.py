@@ -127,6 +127,7 @@ def main(args):
     if args["Overfiting"]:
         session.overfit_tests(
             epochs=args["Epochs"],
+            num_test_items=args["Test Batch"],
             input_noise=args["Input Noise"],
             training_params=args["Train Params"],
         )
