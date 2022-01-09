@@ -28,7 +28,9 @@ def read_fasta(filename):
 def read_json(filename):
     if filename.endswith(".json.gz"):
         with gzip.open(filename, "r") as file:
-            return json.load(file)
+            json_bytes = file.read()
+            json_str = json_bytes.decode("utf-8")
+            return json.loads(json_str)
     elif filename.endswith(".json"):
         with open(filename, "r") as file:
             return json.load(file)
@@ -38,8 +40,10 @@ def read_json(filename):
 
 def write_json(data_dict, filename):
     if filename.endswith(".json.gz"):
+        json_str = json.dumps(data_dict) + "\n"
+        json_bytes = json_str.encode("utf-8")
         with gzip.open(filename, "w") as file:
-            json.dump(data_dict, file)
+            file.write(json_bytes)
     elif filename.endswith(".json"):
         with open(filename, "w") as file:
             json.dump(data_dict, file)
