@@ -7,10 +7,11 @@
 
 
 from argparse import ArgumentParser
+from typing import Any
 
 
 class CustomArgParser(ArgumentParser):
-    def help_value_pairs(self):
+    def help_value_pairs(self) -> dict[str, Any]:
         parsed_args = self.parse_args()
         help_value_pair_dict = {}
         for value in self.__dict__["_option_string_actions"].values():
