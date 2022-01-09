@@ -5,7 +5,8 @@
                         {
                                 "type": "Linear", 
                                 "in": 21,
-                                "out": 8
+                                "out": 8,
+                                "bias": false
                         },
                         {
                                 "type": "Tanh"
@@ -97,7 +98,8 @@
                         {
                                 "type": "Linear", 
                                 "in": 8,
-                                "out": 21
+                                "out": 21,
+                                "bias": false
                         },
                         {
                                 "type": "LogSoftmax" 

@@ -36,6 +36,14 @@
                         {
                                 "type": "Linear", 
                                 "in": 256,
+                                "out": 256
+                        },
+                        {
+                                "type": "Tanh" 
+                        },
+                        {
+                                "type": "Linear", 
+                                "in": 256,
                                 "out": 10
                         },
                         {
@@ -46,6 +54,13 @@
                         {
                                 "type": "Linear", 
                                 "in": 10,
+                                "out": 256
+                        },
+                        {
+                                "type": "ReLU" 
+                        },{
+                                "type": "Linear", 
+                                "in": 256,
                                 "out": 256
                         },
                         {
