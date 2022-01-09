@@ -74,11 +74,15 @@ class DataLoader:
                     yield self.train_data.iloc[i * batch_size : (i + 1) * batch_size].values
         # else: raise NotDefinedError('train data files are not defined')
 
-    def get_test_batch(self, num_test_items=10):
+    def get_test_batch(self, num_test_items=10, random=True):
         if self.train_data_files is not None:
             self.prepare_test_data()
             if num_test_items == -1:
                 num_test_items = len(self.test_items)
-            for item in np.random.choice(self.test_items, size=num_test_items):
-                yield self.test_data[self.test_data.index.str.contains(item)].values
+            if random:
+                for item in np.random.choice(self.test_items, size=num_test_items):
+                    yield self.test_data[self.test_data.index.str.contains(item)].values
+            else:
+                for item in self.test_items[:num_test_items]:
+                    yield self.test_data[self.test_data.index.str.contains(item)].values
         # else: raise NotDefinedError('test data files are not defined')
