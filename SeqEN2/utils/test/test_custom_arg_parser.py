@@ -14,7 +14,9 @@ from SeqEN2.utils.custom_arg_parser import (
 )
 
 
-class TestFileManager(TestCase):
+class TestCustomArgParser(TestCase):
+    """Test items for CustomArgParser class."""
+
     def test_custom_arg_parser_basic(self):
         """CustomArgParser object returns args from parse_args."""
         parser = CustomArgParser()
