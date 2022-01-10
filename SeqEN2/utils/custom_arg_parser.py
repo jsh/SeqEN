@@ -1,11 +1,6 @@
 """Define CustomArgParser and subclasses, for customized argument parsing."""
 # TODO: Create annotated tag for version v0.0.2 (The Git way.)
 # TODO: Replace __version__ constant with annotated tag. (The Git way.)
-# TODO: Add docstrings. (Enable help(function or class) and <object>.__doc__)
-# TODO: Add unit tests. (This will make future changes safer.)
-# TODO: Add optional static typing. (It really is worth the work.)
-# TODO: Add a debug flag ("--verbose", maybe?)
-# TODO: Mark private functions private (standard "_name" naming convention.)
 # TODO: Add --verbose flag ("-d" seems to be pre-empted, so "-v")
 # TODO: Review the code itself
 
