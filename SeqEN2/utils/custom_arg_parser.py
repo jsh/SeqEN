@@ -1,53 +1,57 @@
-"""Module docstring."""
-# TODO: Create annotated tag for version v0.0.2
-# TODO: Add docstrings.
-# TODO: Add unit tests.
-# TODO: Add static typing.
+"""Define CustomArgParser and subclasses, for customized argument parsing."""
+# TODO: Create annotated tag for version v0.0.2 (The Git way.)
+# TODO: Replace __version__ constant with annotated tag. (The Git way.)
+# TODO: Add docstrings. (Enable help(function or class) and <object>.__doc__)
+# TODO: Add unit tests. (This will make future changes safer.)
+# TODO: Add optional static typing. (It really is worth the work.)
+# TODO: Add a debug flag ("--verbose", maybe?)
+# TODO: Mark private functions private (standard "_name" naming convention.)
+# TODO: Add --verbose flag ("-d" seems to be pre-empted, so "-v")
 # TODO: Review the code itself
-# TODO: Add --verbose flag
-
 
 from argparse import ArgumentParser
+from typing import Any
+
+HelpValuePair = dict[str, Any]
 
 
 class CustomArgParser(ArgumentParser):
-    """TODO: class docstring."""
+    """Add help_value_pairs method to ArgumentParser object."""
 
-    def help_value_pairs(self) -> dict[str, str]:
-        """Parse CLI arguments, return dict of args, values."""
+    def help_value_pairs(self) -> HelpValuePair:
+        """Create and return dict of {option_help_message: option_value}."""
         parsed_args = self.parse_args()
         help_value_pair_dict = {}
-        for _, item in self.__dict__["_option_string_actions"].items():
-            if item.dest in parsed_args.__dict__.keys():
-                help_value_pair_dict[item.help] = parsed_args.__dict__[item.dest]
+        for value in self.__dict__["_option_string_actions"].values():
+            if value.dest in parsed_args.__dict__.keys():
+                help_value_pair_dict[value.help] = parsed_args.__dict__[value.dest]
         return help_value_pair_dict
 
 
 class SessionParser:
-    """TODO: Class docstring."""
+    """Add description to CustomArgParser."""
 
-    def __init__(self, desc) -> None:
-        """Create parser with description."""
+    def __init__(self, desc: str) -> None:
+        """Define instance variables, collect arguments."""
         self.parser = CustomArgParser(description=desc)
-        self.initialize()
+        self._initialize()
 
-    def initialize(self) -> None:
-        """No-op."""
+    def _initialize(self) -> None:
+        """A virtual method."""
 
-    def parsed(self) -> dict[str, str]:
-        """TODO: function docstring."""
+    def parsed(self) -> HelpValuePair:
+        """Return description-value pair dictionary."""
         return self.parser.help_value_pairs()
 
 
 class TrainSessionArgParser(SessionParser):
-    """Capture options to configure training session."""
+    """Set description, options, and flags for training session."""
 
     def __init__(self) -> None:
-        """Initialize & describe the class."""
+        """Define instance variables, collect arguments."""
         super().__init__("Train a protein sequence autoencoder")
 
-    def initialize(self) -> None:
-        """Specify command-line options to capture."""
+    def _initialize(self) -> None:
         self.parser.add_argument("-n", "--model", type=str, help="Model Name", required=True)
         self.parser.add_argument("-rt", "--run_title", type=str, help="Run Title", required=True)
         self.parser.add_argument("-d", "--dataset", type=str, help="Dataset", required=True)
