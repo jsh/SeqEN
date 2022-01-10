@@ -13,7 +13,7 @@ from pathlib import Path
 from torch import cuda
 
 from SeqEN2.model.model import Model
-from SeqEN2.utils.custom_arg_parser import SessionArgParser
+from SeqEN2.utils.custom_arg_parser import TrainSessionArgParser
 from SeqEN2.utils.data_loader import read_json
 
 
@@ -150,7 +150,7 @@ def main(args):
 
 if __name__ == "__main__":
     # parse arguments
-    parser = SessionArgParser()
+    parser = TrainSessionArgParser()
     parsed_args = parser.parsed()
     system("wandb login")
     main(parsed_args)
