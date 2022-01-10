@@ -1,26 +1,24 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# by nayebiga@msu.edu
-__version__ = "0.0.1"
-
+"""Define DataLoader class and related I/O functions."""
 
 import gzip
 import json
+from typing import Any
 
 import numpy as np
-import pandas as pd
+from pandas import DataFrame, concat, read_csv
 
 
 class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
+    """Enables JSON too encode numpy nd-arrays."""
+
+    def default(self, obj) -> Any:
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
 
 
-# data tools
-def read_fasta(filename):
+def read_fasta(filename) -> dict:
+    """Read fasta files and return a dict."""
     data_dict = {}
     with open(filename, "r") as file:
         for line in file.readlines():
@@ -32,7 +30,8 @@ def read_fasta(filename):
     return data_dict
 
 
-def read_json(filename):
+def read_json(filename) -> dict:
+    """Read json files and return a dict. (.json, .json.gz)"""
     if filename.endswith(".json.gz"):
         with gzip.open(filename, "r") as file:
             json_bytes = file.read()
@@ -45,7 +44,8 @@ def read_json(filename):
         raise IOError("File format must be .gz or .json.gz")
 
 
-def write_json(data_dict, filename, encoder=None):
+def write_json(data_dict, filename, encoder=None) -> None:
+    """Write json file from a dict, encoding numpy arrays. (.json, .json.gz)"""
     if encoder == "numpy":
         encoder = NumpyEncoder
     if filename.endswith(".json.gz"):
@@ -60,13 +60,14 @@ def write_json(data_dict, filename, encoder=None):
         raise IOError("File format must be .gz or .json.gz")
 
 
-def load(filename):
-    data = None
+def load_csv(filename) -> DataFrame:
+    """Load one or more csv as pandas DataFrame. (.csv, .csv.gz)"""
     if isinstance(filename, list):
-        data = pd.concat([pd.read_csv(fp, index_col=0) for fp in filename])
-    elif filename.endswith("csv.gz") or filename.endswith(".csv"):
-        data = pd.read_csv(filename, index_col=0)
-    return data
+        return concat([load_csv(fp) for fp in filename])
+    elif filename.endswith(".csv.gz") or filename.endswith(".csv"):
+        return read_csv(filename, index_col=0)
+    else:
+        raise IOError("File (or list of files) format must be .csv or .csv.gz")
 
 
 class DataLoader:
