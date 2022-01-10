@@ -13,7 +13,7 @@ from pathlib import Path
 from torch import cuda
 
 from SeqEN2.model.model import Model
-from SeqEN2.utils.custom_arg_parser import TrainSessionArgParser
+from SeqEN2.utils.custom_arg_parser import SessionArgParser
 from SeqEN2.utils.data_loader import read_json
 
 
@@ -25,7 +25,7 @@ def get_map_location():
     return map_location
 
 
-class Session:
+class TrainSession:
 
     root = Path(dirname(__file__)).parent
 
@@ -110,7 +110,7 @@ class Session:
 
 def main(args):
     # session
-    session = Session(is_testing=args["Is Testing"])
+    session = TrainSession(is_testing=args["Is Testing"])
     session.add_model(
         args["Model Name"],
         args["Arch"],
@@ -150,7 +150,7 @@ def main(args):
 
 if __name__ == "__main__":
     # parse arguments
-    parser = TrainSessionArgParser()
+    parser = SessionArgParser()
     parsed_args = parser.parsed()
     system("wandb login")
     main(parsed_args)
