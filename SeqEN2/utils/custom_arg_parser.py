@@ -1,17 +1,25 @@
+"""Define CustomArgParser and subclasses, for customized argument parsing."""
+
 # TODO: Replace __version__ constant with annotated tag.
 # TODO: Add docstrings.
 # TODO: Add unit tests.
 # TODO: Add static typing.
 # TODO: Add a debug flag ("--verbose, maybe?")
+# TODO: Mark private functions private (standard "_name" naming convention.)
 # TODO: Review the code itself
 
 
 from argparse import ArgumentParser
 from typing import Any
 
+HelpValuePair = dict[str, Any]
+
 
 class CustomArgParser(ArgumentParser):
-    def help_value_pairs(self) -> dict[str, Any]:
+    """Add help_value_pairs method to ArgumentParser object."""
+
+    def help_value_pairs(self) -> HelpValuePair:
+        """Create and return dict of {option_help_message: option_value}."""
         parsed_args = self.parse_args()
         help_value_pair_dict = {}
         for value in self.__dict__["_option_string_actions"].values():
@@ -21,22 +29,29 @@ class CustomArgParser(ArgumentParser):
 
 
 class SessionParser:
-    def __init__(self, desc):
+    """Add description to CustomArgParser."""
+
+    def __init__(self, desc: str) -> None:
+        """Define instance variables, collect arguments."""
         self.parser = CustomArgParser(description=desc)
-        self.initialize()
+        self._initialize()
 
-    def initialize(self):
-        pass
+    def _initialize(self) -> None:
+        """A virtual method."""
 
-    def parsed(self):
+    def parsed(self) -> HelpValuePair:
+        """Return description-value pair dictionary."""
         return self.parser.help_value_pairs()
 
 
 class TrainSessionArgParser(SessionParser):
-    def __init__(self):
+    """Set description, options, and flags for training session."""
+
+    def __init__(self) -> None:
+        """Define instance variables, collect arguments."""
         super().__init__("Train a protein sequence autoencoder")
 
-    def initialize(self):
+    def _initialize(self) -> None:
         self.parser.add_argument("-n", "--model", type=str, help="Model Name", required=True)
         self.parser.add_argument("-rt", "--run_title", type=str, help="Run Title", required=True)
         self.parser.add_argument("-d", "--dataset", type=str, help="Dataset", required=True)
