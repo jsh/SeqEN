@@ -62,12 +62,12 @@ class Session:
         self.model.load_data(dataset_name, data_files)
 
     def load_arch(self, arch):
-        arch_path = self.root / "arch" / f"{arch}.json"
+        arch_path = self.root / "config" / "arch" / f"{arch}.json"
         return read_json(arch_path)
 
     def load_train_params(self, train_params=None):
         if train_params is not None:
-            train_params_path = self.root / "train_params" / f"{train_params}.json"
+            train_params_path = self.root / "config" / "train_params" / f"{train_params}.json"
             train_params = read_json(train_params_path)
         return train_params
 
