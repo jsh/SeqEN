@@ -23,8 +23,8 @@ class CustomArgParser(ArgumentParser):
         return help_value_pair_dict
 
 
-class SessionParser:
-    """Add description to CustomArgParser."""
+class DefaultParser:
+    """DefaultParser is the basic parser class. More specialized arg parsers will inherit from this class."""
 
     def __init__(self, desc: str) -> None:
         """Define instance variables, collect arguments."""
@@ -39,8 +39,8 @@ class SessionParser:
         return self.parser.help_value_pairs()
 
 
-class TrainSessionArgParser(SessionParser):
-    """Set description, options, and flags for training session."""
+class TrainSessionArgParser(DefaultParser):
+    """Set description, options, and flags for TrainSession."""
 
     def __init__(self) -> None:
         """Define instance variables, collect arguments."""
@@ -79,4 +79,7 @@ class TrainSessionArgParser(SessionParser):
         )
         self.parser.add_argument(
             "-of", "--overfiting", help="Overfiting", action="store_true", default=False
+        )
+        self.parser.add_argument(
+            "-v", "--verbose", help="Verbose", action="store_true", default=False
         )
