@@ -23,7 +23,7 @@ class CustomArgParser(ArgumentParser):
         return help_value_pair_dict
 
 
-class DefaultParser:
+class DefaultParser(object):
     """DefaultParser is the basic parser class. More specialized arg parsers will inherit from this class."""
 
     def __init__(self, desc: str) -> None:
