@@ -2,7 +2,11 @@
 
 import sys
 
-from custom_arg_parser import CustomArgParser, SessionParser, TrainSessionArgParser
+from SeqEN2.utils.custom_arg_parser import (
+    CustomArgParser,
+    DefaultParser,
+    TrainSessionArgParser,
+)
 
 
 def test_custom_arg_parser_basic():
@@ -40,13 +44,13 @@ def test_help_value_pairs_from_args():
 
 def test_session_parser_creation():
     """Can set SessionParser description."""
-    session = SessionParser("my ob-")
+    session = DefaultParser("my ob-")
     assert session.parser.description == "my ob-"
 
 
 def test_session_parsed():
-    """SessionParser.parsed() returns correcthelp_value_pairs."""
-    session = SessionParser("Carol Kaye")
+    """SessionParser.parsed() returns correct help_value_pairs."""
+    session = DefaultParser("Carol Kaye")
     session.parser.add_argument("--debug", "-d", action="store_true", help="I need somebody")
     session.parser.add_argument(
         "--verbose", "-v", type=str, help="Not just anybody", default="Beatles"
@@ -59,25 +63,27 @@ def test_train_session_arg_parser():
     """TrainSessionArgParser returns correct defaults for options and flags."""
     train_session = TrainSessionArgParser()
     expected_pairs = {
+        "Model Name": "T",
+        "Run Title": "Run-away",
+        "Dataset": "'All life'",
         "Arch": "'Scott Persing'",
         "D0": 21,
         "D1": 8,
-        "Dataset": "'All life'",
         "Dn": 10,
-        "Epochs": 25,
-        "Input Noise": 0.0,
-        "Is Testing": False,
+        "W": 20,
         "Learning Rate": 0.01,
-        "Model ID": "",
-        "Model Name": "T",
-        "Model Type": "AE",
-        "No Train": False,
-        "Run Title": "Run-away",
+        "Epochs": 25,
+        "Train Batch": 128,
         "Test Batch": 1,
         "Test Interval": 100,
-        "Train Batch": 128,
+        "Input Noise": 0.0,
+        "Model ID": "",
         "Train Params": None,
-        "W": 20,
+        "Model Type": "AE",
+        "No Train": False,
+        "Is Testing": False,
+        "Overfitting": False,
+        "Verbose": False,
     }
     sys.argv = [
         sys.argv[0],
