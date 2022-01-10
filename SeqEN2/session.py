@@ -124,7 +124,7 @@ def main(args):
     session.load_data(args["Dataset"])
     # if args['Model ID'] != '':
     #     session.model.load_model(args['Model ID'], map_location=get_map_location())
-    if args["Overfiting"]:
+    if args["Overfitting"]:
         session.overfit_tests(
             epochs=args["Epochs"],
             num_test_items=args["Test Batch"],
