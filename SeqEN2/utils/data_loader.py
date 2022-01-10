@@ -12,6 +12,13 @@ import numpy as np
 import pandas as pd
 
 
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+
+
 # data tools
 def read_fasta(filename):
     data_dict = {}
@@ -38,9 +45,11 @@ def read_json(filename):
         raise IOError("File format must be .gz or .json.gz")
 
 
-def write_json(data_dict, filename):
+def write_json(data_dict, filename, encoder=None):
+    if encoder == "numpy":
+        encoder = NumpyEncoder
     if filename.endswith(".json.gz"):
-        json_str = json.dumps(data_dict) + "\n"
+        json_str = json.dumps(data_dict, cls=encoder) + "\n"
         json_bytes = json_str.encode("utf-8")
         with gzip.open(filename, "w") as file:
             file.write(json_bytes)
